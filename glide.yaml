@@ -1,0 +1,5 @@
+package: online_judge/JudgeServer
+import:
+- package: online_judge/vendor
+  repo: https://gitee.com/online_judge/vendor.git
+  version: master

@@ -1,0 +1,14 @@
+listen = 2010
+allowCORS = false
+
+[redis]
+addr = "67.93.206.195"
+password = "zzuli"
+db = 2
+maxIdle = 100
+maxActive = 100
+dialTimeout = "3s"
+
+[monitor]
+namespace = "OnlineJudge"
+subsystem = "JudgeServer"

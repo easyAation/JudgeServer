@@ -1,0 +1,7 @@
+hash: f50e70deeb46c5f570e42488876227793a87bfb72ff475207efd20f456a592d0
+updated: 2019-02-09T15:45:46.672857517+08:00
+imports:
+- name: online_judge/vendor
+  version: 527f6a4edbd858ecb26de5416497e66630345068
+  repo: https://gitee.com/online_judge/vendor.git
+testImports: []
