@@ -1,0 +1,74 @@
+syntax = "proto3";
+package pb;
+
+
+service OOS {
+    rpc PutObject(PutObjectReq) returns (EmptyResp) {}
+    rpc PrePareMultiUpload(PreMultiUploadReq) returns (MultipartUploadResult) {}
+    rpc MultipartUpload(MultiUploadReq) returns (MultipartUploadResult) {}
+    rpc MultipartUploadComplete(MultiUploadCompleteReq) returns (MultipartUploadResult) {}
+    rpc MultipartUploadAbort(MultiUploadCompleteReq) returns (EmptyResp) {}
+    rpc GenerateURL(GenerateURLReq) returns (GenerateURLResp) {}
+}
+
+message PutObjectReq{
+    Bucket Bucket = 1;
+    string ObjectName = 2;
+    bytes Body = 3;
+}
+
+message EmptyResp {}
+
+message PreMultiUploadReq {
+    Bucket Bucket = 1;
+    string ObjectName = 2;
+}
+
+message GenerateURLReq {
+    Bucket Bucket = 1;
+    string ObjectName = 2;
+    int64 ExpiresToSec = 3;
+}
+
+message GenerateURLResp {
+    string URI = 1;
+}
+
+message MultiUploadReq {
+    Bucket Bucket = 1;
+    MultipartUploadResult UploadID = 2;
+    bytes Chunk = 3;
+    int64 PartLength = 4;
+    int32 PartNumber = 5;
+}
+
+message MultiUploadCompleteReq {
+    Bucket Bucket = 1;
+    MultipartUploadResult UploadID = 2;
+    repeated MultipartUploadResult Parts = 3;
+}
+
+message Bucket {
+    string Endpoint  = 1;
+    string AccessKey = 2;
+    string SecretKey = 3;
+    string Bucket = 4;
+    bool UseCname = 5;
+    int64 ConnectTimeoutSec = 6;
+    int64 ReadWriteTimeoutSec = 7;
+}
+
+message XMLName {
+    string Space = 1;
+    string Local = 2;
+}
+
+message MultipartUploadResult {
+    XMLName XMLName = 1;
+    string Bucket = 2;
+    string Key = 3;
+    string UploadID = 4;
+    int32 PartNumber = 5;
+    string ETag = 6;
+    string Location = 7;
+}
