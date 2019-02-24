@@ -1,7 +1,9 @@
-hash: f50e70deeb46c5f570e42488876227793a87bfb72ff475207efd20f456a592d0
-updated: 2019-02-09T15:45:46.672857517+08:00
+hash: e64913ca40fbe4fb92eeeb11f32f61e4a391c861d74f7917ae3f40fc9faaffa6
+updated: 2019-02-24T23:08:39.959933915+08:00
 imports:
+- name: github.com/BurntSushi/toml
+  version: b26d9c308763d68093482582cea63d69be07a0f0
 - name: online_judge/vendor
-  version: 527f6a4edbd858ecb26de5416497e66630345068
+  version: cd3146f9518a65aac79e1b2101aed267c6bc8828
   repo: https://gitee.com/online_judge/vendor.git
 testImports: []
