@@ -6,7 +6,7 @@ CURRENT_GIT_GROUP = online_judge
 CURRENT_GIT_REPO  = JudgeServer
 COMMONENVVAR      = GOOS=linux GOARCH=amd64
 BUILDENVVAR       = CGO_ENABLED=0
-BIN_JudgeServer = JudgeServer
+BIN_JudgeServer = judge_server
 
 ifeq ($(DOCKER_IMAGE_TAG),)
         DOCKER_IMAGE_TAG  ?= $(shell git describe --abbrev=0 --tags)
