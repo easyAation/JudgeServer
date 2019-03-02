@@ -1,5 +1,10 @@
 package: online_judge/JudgeServer
 import:
-- package: online_judge/vendor
-  repo: https://gitee.com/online_judge/vendor.git
-  version: master
+- package: github.com/BurntSushi/toml
+  version: v0.3.1
+- package: github.com/easyAation/scaffold
+  subpackages:
+  - reply
+  - router
+- package: github.com/gin-gonic/gin
+  version: v1.3.0
