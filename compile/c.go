@@ -3,8 +3,9 @@ package compile
 import (
 	"bytes"
 	"fmt"
-	"github.com/pkg/errors"
 	"os/exec"
+
+	"github.com/pkg/errors"
 )
 
 const args = "gcc  -DONLINE_JUDGE  -O2  -w -fmax-errors=3  -std=c11 %s -lm -o %s"
