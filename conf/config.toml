@@ -12,3 +12,7 @@ dialTimeout = "3s"
 [monitor]
 namespace = "OnlineJudge"
 subsystem = "JudgeServer"
+
+
+[compile]
+codeDir = "~/.online_judge/resource"

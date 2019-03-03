@@ -2,7 +2,6 @@ package common
 
 import (
 	"github.com/BurntSushi/toml"
-	"online_judge/talcity/scaffold/db"
 )
 
 var Config Configs
@@ -10,13 +9,11 @@ var Config Configs
 type Configs struct {
 	Listen    int
 	AllowCORS bool
-	Redis     *db.RedisConfig
-	Monitor   *MonitorConfig
+	Compile   CompileConfig
 }
 
-type MonitorConfig struct {
-	NameSpace string
-	Subsystem string
+type CompileConfig struct {
+	CodeDir string
 }
 
 func InitConfig(fpath string) {

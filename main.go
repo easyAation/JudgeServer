@@ -4,10 +4,10 @@ import (
 	"flag"
 	"strconv"
 
-	"scaffold/criteria/router"
+	"github.com/easyAation/scaffold/router"
 
 	"online_judge/JudgeServer/common"
-	"online_judge/JudgeServer/judge"
+	"online_judge/JudgeServer/route"
 )
 
 var (
@@ -21,6 +21,6 @@ func init() {
 }
 
 func main() {
-	engine := router.BuildHandler(nil, judge.JudgeRouteModule())
+	engine := router.BuildHandler(nil, route.JudgeRouteModule())
 	engine.Run(":" + strconv.Itoa(common.Config.Listen))
 }
