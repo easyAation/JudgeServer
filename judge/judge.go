@@ -1,24 +1,26 @@
 package judge
 
-import (
-	"net/http"
+import "online_judge/JudgeServer/compile"
 
-	"github.com/gin-gonic/gin"
-
-	"scaffold/criteria/reply"
-	"scaffold/criteria/router"
-)
-
-func JudgeRouteModule() router.ModuleRoute {
-	routes := []*router.Router{
-		router.NewRouter("v1/judge_problem", http.MethodPost, reply.Wrap(judgeProblem)),
-	}
-
-	return router.ModuleRoute{
-		Routers: routes,
-	}
+type Judge struct {
+	compile   compile.Compile
+	rpath     string
+	exePath   string
+	maxTime   int64
+	maxMemory int64
 }
 
-func judgeProblem(ctx *gin.Context) gin.HandlerFunc {
-	return reply.Success(http.StatusOK, nil)
+type JudgeResponse struct {
+}
+
+type JudgeRequest struct {
+	ID             string
+	CodeContext    string
+	Language       string
+	maxTimeLimit   int64 // sec
+	maxMemoryLimit int64
+}
+
+func (self *Judge) Judge() (JudgeResponse, error) {
+
 }
