@@ -15,4 +15,6 @@ subsystem = "JudgeServer"
 
 
 [compile]
-codeDir = "~/.online_judge/resource"
+#codeDir = "/workspace"
+codeDir = ".online_judge/resource"
+exeDir  = ".online_judge/exec"

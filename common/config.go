@@ -14,6 +14,7 @@ type Configs struct {
 
 type CompileConfig struct {
 	CodeDir string
+	ExeDir  string
 }
 
 func InitConfig(fpath string) {
