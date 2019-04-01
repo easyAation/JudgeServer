@@ -8,11 +8,11 @@ import (
 	"online_judge/JudgeServer/common"
 )
 
-type Compile interface {
-	Compile(srcPath, execPath string) (string, error)
+type Compiler interface {
+	Compile(codeDir, exeDir, codeName string) (string, error)
 }
 
-func NewCompile(language string) (Compile, error) {
+func NewCompile(language string) (Compiler, error) {
 	switch language {
 	case common.CLanguage:
 		return &CCompile{}, nil
