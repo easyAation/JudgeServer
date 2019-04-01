@@ -5,6 +5,7 @@ import (
 
 	"github.com/easyAation/scaffold/reply"
 	"github.com/easyAation/scaffold/router"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,5 +20,6 @@ func JudgeRouteModule() router.ModuleRoute {
 }
 
 func judgeProblem(ctx *gin.Context) gin.HandlerFunc {
+
 	return reply.Success(http.StatusOK, nil)
 }

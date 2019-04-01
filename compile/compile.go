@@ -16,6 +16,9 @@ func NewCompile(language string) (Compile, error) {
 	switch language {
 	case common.CLanguage:
 		return &CCompile{}, nil
+	case common.CPPLanguage:
+		return &CPPCompile{}, nil
+
 	}
 	return nil, errors.New(fmt.Sprintf("%s not found.", language))
 }
