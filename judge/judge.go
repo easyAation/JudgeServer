@@ -1,9 +1,6 @@
 package judge
 
 import (
-	"fmt"
-
-	"online_judge/JudgeServer/common"
 	"online_judge/JudgeServer/compile"
 )
 
@@ -37,11 +34,6 @@ func NewJudge(request Request) (*Judge, error) {
 	return &judge, nil
 }
 
-func (judge *Judge) Run() (*Response, error) {
-	execFile, err := judge.Compile(common.Config.Compile.CodeDir, common.Config.Compile.ExeDir, fmt.Sprintf("%s-%d", judge.ID, judge.ProblemID))
-	if err != nil {
-		return nil, err
-	}
-	fmt.Printf(execFile)
-	return nil, nil
+func (r Judge) Run() {
+
 }

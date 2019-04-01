@@ -9,7 +9,7 @@ import (
 )
 
 type Compiler interface {
-	Compile(codeDir, exeDir, codeName string) (string, error)
+	Compile(srcPath, exePath string) (string, error)
 }
 
 func NewCompile(language string) (Compiler, error) {
