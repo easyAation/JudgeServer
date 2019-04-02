@@ -2,12 +2,13 @@ package main
 
 import (
 	"flag"
+	"os"
 	"strconv"
 
-	"scaffold/criteria/router"
+	"github.com/easyAation/scaffold/router"
 
 	"online_judge/JudgeServer/common"
-	"online_judge/JudgeServer/judge"
+	"online_judge/JudgeServer/route"
 )
 
 var (
@@ -18,9 +19,21 @@ func init() {
 	flag.Parse()
 
 	common.InitConfig(*configPath)
+
+	if !route.Exists(common.Config.Compile.CodeDir) {
+		if err := os.MkdirAll(common.Config.Compile.CodeDir, os.ModePerm); err != nil {
+			panic(err)
+		}
+	}
+
+	if !route.Exists(common.Config.Compile.ExeDir) {
+		if err := os.MkdirAll(common.Config.Compile.ExeDir, os.ModePerm); err != nil {
+			panic(err)
+		}
+	}
 }
 
 func main() {
-	engine := router.BuildHandler(nil, judge.JudgeRouteModule())
+	engine := router.BuildHandler(nil, route.JudgeRouteModule())
 	engine.Run(":" + strconv.Itoa(common.Config.Listen))
 }

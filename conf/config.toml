@@ -12,3 +12,9 @@ dialTimeout = "3s"
 [monitor]
 namespace = "OnlineJudge"
 subsystem = "JudgeServer"
+
+
+[compile]
+#codeDir = "/workspace"
+codeDir = ".online_judge/resource"
+exeDir  = ".online_judge/exec"

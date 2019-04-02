@@ -1,7 +1,8 @@
 package common
 
 const (
-	CLanguage = "C"
+	CLanguage   = "C"
 	CPPLanguage = "CPP"
-	GoLanguage = "Golang"
+	GoLanguage  = "Golang"
+	AAA         = 2
 )
