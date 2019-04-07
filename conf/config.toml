@@ -15,6 +15,11 @@ subsystem = "JudgeServer"
 
 
 [compile]
-#codeDir = "/workspace"
-codeDir = ".online_judge/resource"
+codeDir = ".online_judge/code"
 exeDir  = ".online_judge/exec"
+
+[sandbox]
+exe = "libjudger.so"
+problemdir = "/home/lianxm/go/src/online_judge/JudgeServer/.online_judge/problem_data"
+outputDir = ".online_judge/output"
+

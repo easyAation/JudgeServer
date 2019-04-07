@@ -10,11 +10,18 @@ type Configs struct {
 	Listen    int
 	AllowCORS bool
 	Compile   CompileConfig
+	SandBox   SandBoxConfig
 }
 
 type CompileConfig struct {
 	CodeDir string
 	ExeDir  string
+}
+
+type SandBoxConfig struct {
+	Exe        string
+	ProblemDir string
+	OutPutDir  string
 }
 
 func InitConfig(fpath string) {

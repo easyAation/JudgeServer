@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"online_judge/JudgeServer/model"
 	"os"
 	"strconv"
 
@@ -31,6 +32,7 @@ func init() {
 			panic(err)
 		}
 	}
+	model.InitProblem()
 }
 
 func main() {
