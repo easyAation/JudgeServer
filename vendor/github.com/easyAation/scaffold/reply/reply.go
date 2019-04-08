@@ -22,6 +22,9 @@ func Wrap(f func(c *gin.Context) gin.HandlerFunc) gin.HandlerFunc {
 }
 
 func Success(code int, data map[string]interface{}) gin.HandlerFunc {
+        if data == nil {
+                data = make(map[string]interface{})
+        }
         return func(context *gin.Context) {
                 if _, exist := data["code"]; !exist {
                         data["code"] = code
@@ -36,7 +39,7 @@ func ErrorWithMessage(err error, msg string) gin.HandlerFunc {
 
 func Err(err error) gin.HandlerFunc {
         return func(c *gin.Context) {
-                fmt.Printf("%+v", err)
+                fmt.Printf("%+v\n", err)
                 c.JSON(http.StatusBadRequest, Response{
                         Code: http.StatusBadRequest,
                         Msg:  err.Error(),

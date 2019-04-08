@@ -2,6 +2,7 @@ package compile
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/pkg/errors"
 
@@ -9,11 +10,11 @@ import (
 )
 
 type Compiler interface {
-	Compile(srcPath, exePath string) (string, error)
+	Compile(codeFile, exeFile string) (string, error)
 }
 
 func NewCompile(language string) (Compiler, error) {
-	switch language {
+	switch strings.ToUpper(language) {
 	case common.CLanguage:
 		return &CCompile{}, nil
 	case common.CPPLanguage:
