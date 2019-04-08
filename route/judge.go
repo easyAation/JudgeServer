@@ -1,13 +1,15 @@
 package route
 
 import (
+	"net/http"
+	"os"
+
 	"github.com/easyAation/scaffold/reply"
 	"github.com/easyAation/scaffold/router"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
-	"net/http"
+
 	"online_judge/JudgeServer/sandbox"
-	"os"
 )
 
 func JudgeRouteModule() router.ModuleRoute {

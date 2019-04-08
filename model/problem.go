@@ -2,12 +2,14 @@ package model
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"io/ioutil"
-	"online_judge/JudgeServer/common"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/pkg/errors"
+
+	"online_judge/JudgeServer/common"
 )
 
 type DataFile struct {
