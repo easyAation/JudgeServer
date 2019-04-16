@@ -2,6 +2,8 @@ package common
 
 import (
 	"github.com/BurntSushi/toml"
+	"github.com/easyAation/scaffold/db"
+	"time"
 )
 
 var Config Configs
@@ -9,10 +11,16 @@ var Config Configs
 type Configs struct {
 	Listen    int
 	AllowCORS bool
+	MySQL     db.MySQLConfig
 	Compile   CompileConfig
 	SandBox   SandBoxConfig
 }
 
+type MySQLConfig struct {
+	ConnStr string
+	MaxIdle int
+	MaxOpen int
+}
 type CompileConfig struct {
 	CodeDir string
 	ExeDir  string
@@ -39,4 +47,17 @@ func loadConfig(fpath string) (*Configs, error) {
 		return nil, err
 	}
 	return config, nil
+}
+
+type Duration struct {
+	time.Duration
+}
+
+func (d *Duration) UnmarshalText(text []byte) (err error) {
+	d.Duration, err = time.ParseDuration(string(text))
+	return err
+}
+
+func (d *Duration) D() time.Duration {
+	return d.Duration
 }

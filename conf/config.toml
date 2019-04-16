@@ -1,12 +1,17 @@
 listen = 2010
 allowCORS = false
 
+[mysql]
+connStr = "root:123456@tcp(47.93.206.195:3306)/problem?charset=utf8mb4&parseTime=True&loc=Asia%2FShanghai&time_zone=%27%2B8%3A00%27"
+maxIdleConns = 200
+maxOpenConns = 200
+
 [redis]
-addr = "67.93.206.195"
+addr = "47.93.206.195"
 password = "zzuli"
 db = 2
-maxIdle = 100
-maxActive = 100
+maxIdle = 10
+maxActive = 10
 dialTimeout = "3s"
 
 [monitor]

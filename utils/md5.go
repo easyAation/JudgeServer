@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"fmt"
 	"io/ioutil"
+	"strconv"
 
 	"github.com/pkg/errors"
 )
@@ -15,4 +16,12 @@ func Md5ForFile(fileName string) (string, error) {
 	}
 	fmt.Println("file context:--", string(data), "---")
 	return fmt.Sprint(md5.Sum(data)), nil
+}
+
+func CovertMD5(nums [16]byte) string {
+	var ans string
+	for _, v := range nums {
+		ans += strconv.Itoa(int(v))
+	}
+	return ans
 }
