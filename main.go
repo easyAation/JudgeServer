@@ -2,8 +2,8 @@ package main
 
 import (
 	"flag"
-	"online_judge/JudgeServer/model"
-	"os"
+	"fmt"
+	"github.com/easyAation/scaffold/db"
 	"strconv"
 
 	"github.com/easyAation/scaffold/router"
@@ -21,18 +21,21 @@ func init() {
 
 	common.InitConfig(*configPath)
 
-	if !route.Exists(common.Config.Compile.CodeDir) {
-		if err := os.MkdirAll(common.Config.Compile.CodeDir, os.ModePerm); err != nil {
-			panic(err)
-		}
+	// if !route.Exists(common.Config.Compile.CodeDir) {
+	// 	if err := os.MkdirAll(common.Config.Compile.CodeDir, os.ModePerm); err != nil {
+	// 		panic(err)
+	// 	}
+	// }
+	//
+	// if !route.Exists(common.Config.Compile.ExeDir) {
+	// 	if err := os.MkdirAll(common.Config.Compile.ExeDir, os.ModePerm); err != nil {
+	// 		panic(err)
+	// 	}
+	// }
+	fmt.Println(common.Config.MySQL)
+	if err := db.RigisterDB("problem", &common.Config.MySQL); err != nil {
+		panic(err)
 	}
-
-	if !route.Exists(common.Config.Compile.ExeDir) {
-		if err := os.MkdirAll(common.Config.Compile.ExeDir, os.ModePerm); err != nil {
-			panic(err)
-		}
-	}
-	model.InitProblem()
 }
 
 func main() {

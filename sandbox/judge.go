@@ -1,6 +1,9 @@
 package sandbox
 
 import (
+	"bytes"
+	"context"
+	"crypto/md5"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -10,6 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/easyAation/scaffold/db"
 	"github.com/pkg/errors"
 
 	"online_judge/JudgeServer/common"
@@ -19,13 +23,14 @@ import (
 )
 
 const (
-	accept        = "Accept"
-	wrongAnswer   = "Wrong Answer"
-	timeLimit     = "Time Limit"
-	memoryLimit   = "Memory Limit"
-	runtimeError  = "Runtime Error"
-	systeamError  = "System Error"
-	internalError = "internal Error"
+	accept            = "Accept"
+	wrongAnswer       = "Wrong Answer"
+	timeLimit         = "Time Limit"
+	memoryLimit       = "Memory Limit"
+	runtimeError      = "Runtime Error"
+	systeamError      = "System Error"
+	presentationError = "Presentation Error"
+	internalError     = "internal Error"
 )
 
 type SandBox struct {
@@ -51,7 +56,7 @@ type Request struct {
 	MemoryLimit int64  `json:"memory_limit"`
 }
 
-func CodeToStatus(code int) string {
+func judge(code int, file1 string, proData model.ProblemData) string {
 	if code == 1 || code == 2 {
 		return timeLimit
 	}
@@ -64,27 +69,35 @@ func CodeToStatus(code int) string {
 	if code == 5 {
 		return systeamError
 	}
-	return internalError
-}
-
-func judge(code int, file1, file2 string) string {
 	if code != 0 {
-		return CodeToStatus(code)
-	}
-	data1, err := utils.Md5ForFile(file1)
-	if err != nil {
 		return internalError
 	}
-	data2, err := utils.Md5ForFile(file2)
-	if err != nil {
-		return internalError
-	}
-	fmt.Println("data1: ", data1)
-	fmt.Println("data2: ", data2)
-	if data1 == data2 {
+	switch code {
+	case 1, 2:
+		return timeLimit
+	case 3:
+		return memoryLimit
+	case 4:
+		return runtimeError
+	case 5:
+		return systeamError
+	case 0:
+		data, err := ioutil.ReadFile(file1)
+		if err != nil {
+			return internalError
+		}
+
+		if utils.CovertMD5(md5.Sum(data)) != proData.MD5 {
+			if utils.CovertMD5(md5.Sum(bytes.TrimSpace(data))) == proData.MD5TrimSpace {
+				return presentationError
+			}
+			return wrongAnswer
+		}
 		return accept
+	default:
+		return internalError
 	}
-	return wrongAnswer
+
 }
 func buildCommandArgs(values map[string]interface{}) string {
 	var args = make([]string, 0, len(values))
@@ -142,16 +155,23 @@ func (s *SandBox) Run() ([]Result, error) {
 		return nil, errors.Wrap(err, "compile error.")
 	}
 
-	problem, err := model.GetProBlemByID(s.ProblemID)
+	sqlExec, err := db.GetSqlExec(context.Background(), "problem")
+	if err != nil {
+		return nil, errors.Wrap(err, "get sqlExec error.")
+	}
+
+	problemData, err := model.GetProblemData(sqlExec, map[string]interface{}{
+		"pid": s.ProblemID,
+	})
 	if err != nil {
 		return nil, errors.Wrap(err, "")
 	}
-	results := make([]Result, 0, len(problem.IOFiles))
-	for index, ioFile := range problem.IOFiles {
+	results := make([]Result, 0, len(problemData))
+	for index, prodata := range problemData {
 		outputFile := common.Config.SandBox.OutPutDir + string(os.PathSeparator) + s.ID + fmt.Sprintf("_%d", index)
 		args := common.Config.SandBox.Exe + buildCommandArgs(map[string]interface{}{
 			"exe_path":          s.exeFile,
-			"input_path":        ioFile.InputFile,
+			"input_path":        prodata.InputFile,
 			"output_path":       outputFile,    // outputFile,
 			"max_cpu_time":      s.TimeLimit,   // s.TimeLimit,
 			"max_real_time":     s.TimeLimit,   // s.TimeLimit,
@@ -171,7 +191,7 @@ func (s *SandBox) Run() ([]Result, error) {
 			log.Print(err)
 			continue
 		}
-		result.Status = judge(result.Code, ioFile.OutputFile, outputFile)
+		result.Status = judge(result.Code, outputFile, prodata)
 		results = append(results, result)
 		fmt.Printf("output file: %s\n", outputFile)
 	}
