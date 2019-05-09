@@ -22,17 +22,6 @@ import (
 	"online_judge/JudgeServer/utils"
 )
 
-const (
-	accept            = "Accept"
-	wrongAnswer       = "Wrong Answer"
-	timeLimit         = "Time Limit"
-	memoryLimit       = "Memory Limit"
-	runtimeError      = "Runtime Error"
-	systeamError      = "System Error"
-	presentationError = "Presentation Error"
-	internalError     = "internal Error"
-)
-
 type SandBox struct {
 	compile.Compiler
 	Request
@@ -58,45 +47,33 @@ type Request struct {
 
 func judge(code int, file1 string, proData model.ProblemData) string {
 	if code == 1 || code == 2 {
-		return timeLimit
+		return common.TimeLimit
 	}
 	if code == 3 {
-		return memoryLimit
+		return common.MemoryLimit
 	}
 	if code == 4 {
-		return runtimeError
+		return common.MemoryLimit
 	}
 	if code == 5 {
-		return systeamError
+		return common.SysteamError
 	}
 	if code != 0 {
-		return internalError
+		return common.InternalError
 	}
-	switch code {
-	case 1, 2:
-		return timeLimit
-	case 3:
-		return memoryLimit
-	case 4:
-		return runtimeError
-	case 5:
-		return systeamError
-	case 0:
-		data, err := ioutil.ReadFile(file1)
-		if err != nil {
-			return internalError
-		}
 
-		if utils.CovertMD5(md5.Sum(data)) != proData.MD5 {
-			if utils.CovertMD5(md5.Sum(bytes.TrimSpace(data))) == proData.MD5TrimSpace {
-				return presentationError
-			}
-			return wrongAnswer
-		}
-		return accept
-	default:
-		return internalError
+	data, err := ioutil.ReadFile(file1)
+	if err != nil {
+		return common.InternalError
 	}
+
+	if utils.CovertMD5(md5.Sum(data)) != proData.MD5 {
+		if utils.CovertMD5(md5.Sum(bytes.TrimSpace(data))) == proData.MD5TrimSpace {
+			return common.PresentationError
+		}
+		return common.WrongAnswer
+	}
+	return common.Accept
 
 }
 func buildCommandArgs(values map[string]interface{}) string {

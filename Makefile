@@ -18,7 +18,7 @@ deps:
 	dep ensure -v
 
 build:
-	$(BUILDENVVAR) go build -o $(GOBIN)/$(BIN_JudgeServer)  -ldflags "-X main.BuildTime=`date '+%Y-%m-%d_%I:%M:%S%p'` -X main.BuildGitHash=`git rev-parse HEAD` -X main.BuildGitTag=`git describe --tags` -w -s" $(CURRENT_GIT_GROUP)/$(CURRENT_GIT_REPO)
+	$(BUILDENVVAR) go build -o $(GOBIN)/$(BIN_JudgeServer)  -ldflags "-X main.BuildTime=`date '+%Y-%m-%d_%I:%M:%S%p'` -X  main.BuildGitHash=`git rev-parse HEAD` -X main.BuildGitTag=`git describe --always` -w -s" $(CURRENT_GIT_GROUP)/$(CURRENT_GIT_REPO)
 
 linux_build:
 	$(COMMONENVVAR) $(BUILDENVVAR) make build
