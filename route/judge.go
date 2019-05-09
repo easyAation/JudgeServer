@@ -4,21 +4,25 @@ import (
 	"bytes"
 	"crypto/md5"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+	"path"
+	"sort"
+	"strconv"
+	"strings"
+
 	"github.com/easyAation/scaffold/db"
 	"github.com/easyAation/scaffold/reply"
 	"github.com/easyAation/scaffold/router"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
-	"io/ioutil"
-	"net/http"
+
 	"online_judge/JudgeServer/common"
 	"online_judge/JudgeServer/model"
 	"online_judge/JudgeServer/sandbox"
 	"online_judge/JudgeServer/utils"
-	"os"
-	"path"
-	"strconv"
-	"strings"
 )
 
 func JudgeRouteModule() router.ModuleRoute {
@@ -29,9 +33,34 @@ func JudgeRouteModule() router.ModuleRoute {
 			reply.Wrap(judgeProblem),
 		),
 		router.NewRouter(
+			"/v1/submission/submit",
+			http.MethodPost,
+			reply.Wrap(judgeProblem),
+		),
+		router.NewRouter(
 			"/v1/problem/add_data",
 			http.MethodPost,
 			reply.Wrap(addProblemData),
+		),
+		router.NewRouter(
+			"/v1/problem/add",
+			http.MethodPost,
+			reply.Wrap(addProblem),
+		),
+		router.NewRouter(
+			"/v1/problem/update",
+			http.MethodPost,
+			reply.Wrap(updateProblem),
+		),
+		router.NewRouter(
+			"/v1/problem/detail",
+			http.MethodGet,
+			reply.Wrap(getProblem),
+		),
+		router.NewRouter(
+			"/v1/problem/list",
+			http.MethodGet,
+			reply.Wrap(getProblems),
 		),
 	}
 
@@ -46,6 +75,21 @@ func judgeProblem(ctx *gin.Context) gin.HandlerFunc {
 	if err != nil {
 		return reply.ErrorWithMessage(errors.WithStack(err), "invalid param")
 	}
+
+	fmt.Println("request: ", request)
+	sqlExec, err := db.GetSqlExec(ctx.Request.Context(), "problem")
+	if err != nil {
+		return reply.Err(err)
+	}
+	rowsAffected, err := model.AddSubmit(sqlExec, &model.Submit{
+		PID:      request.ProblemID,
+		SubmitID: request.ID,
+		Code:     request.Code,
+	})
+	if err != nil {
+		return reply.Err(err)
+	}
+	log.Printf("%d rows affected.", rowsAffected)
 	sandBox, err := sandbox.NewSandBox(request)
 	if err != nil {
 		return reply.Err(err)
@@ -54,18 +98,125 @@ func judgeProblem(ctx *gin.Context) gin.HandlerFunc {
 	if err != nil {
 		return reply.Err(err)
 	}
+	go func() {
+		status := common.Accept
+		sort.Slice(response, func(i, j int) bool {
+			return response[i].Index < response[j].Index
+		})
+		for _, result := range response {
+			if result.Status != common.Accept {
+				status = result.Status
+				break
+			}
+		}
+		_, err := model.UpdateSubmitBySID(sqlExec, request.ID, map[string]interface{}{
+			"result": status,
+		})
+		if err != nil {
+			log.Println(err)
+		}
+	}()
 	return reply.Success(http.StatusOK, map[string]interface{}{
 		"data": response,
 	})
 }
 
+func addProblem(ctx *gin.Context) gin.HandlerFunc {
+	var problem model.Problem
+	err := ctx.ShouldBindJSON(&problem)
+	if err != nil {
+		return reply.ErrorWithMessage(err, "invalid param")
+	}
+	sqlExec, err := db.GetSqlExec(ctx.Request.Context(), "problem")
+	if err != nil {
+		return reply.Err(err)
+	}
+	_, err = model.AddProblem(sqlExec, problem)
+	if err != nil {
+		return reply.Err(err)
+	}
+	return reply.Success(200, map[string]interface{}{
+		"id": problem.ID,
+	})
+}
+
+func updateProblem(ctx *gin.Context) gin.HandlerFunc {
+	var (
+		problem = struct {
+			ID          int64  `json:"id"`
+			Name        string `json:"name"`
+			TimeLimit   int64  `json:"time_limit"`
+			MemoryLimit int64  `json:"memory"`
+			Description string `json:"description"`
+			InputDes    string `json:"input_des"`
+			OutputDes   string `json:"output_des"`
+			Input       string `json:"case_data_input"`
+			Output      string `json:"case_data_output"`
+		}{}
+	)
+	err := ctx.ShouldBindJSON(&problem)
+	if err != nil {
+		return reply.ErrorWithMessage(err, "invalid param")
+	}
+	sqlExec, err := db.GetSqlExec(ctx.Request.Context(), "problem")
+	if err != nil {
+		return reply.Err(err)
+	}
+	_, err = model.UpdateProblem(sqlExec, problem.ID, map[string]interface{}{
+		"name":             problem.Name,
+		"time_limit":       problem.TimeLimit,
+		"memory_limit":     problem.MemoryLimit,
+		"description":      problem.Description,
+		"input_des":        problem.InputDes,
+		"output_des":       problem.OutputDes,
+		"case_data_input":  problem.Input,
+		"case_data_output": problem.Output,
+	})
+	if err != nil {
+		return reply.Err(err)
+	}
+	return reply.Success(http.StatusOK, nil)
+}
+func getProblem(ctx *gin.Context) gin.HandlerFunc {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	pid := ctx.Query("pid")
+	if pid == "" {
+		return reply.Err(errors.Errorf("invalid param pid: %v", pid))
+	}
+	sqlExec, err := db.GetSqlExec(ctx.Request.Context(), model.ProblemTable)
+	if err != nil {
+		return reply.Err(err)
+	}
+	problem, err := model.GetOneProblem(sqlExec, map[string]interface{}{
+		"id": pid,
+	})
+	if err != nil {
+		return reply.Err(err)
+	}
+	return reply.Success(200, map[string]interface{}{
+		"problem": problem,
+	})
+}
+
+func getProblems(ctx *gin.Context) gin.HandlerFunc {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	sqlExec, err := db.GetSqlExec(ctx.Request.Context(), model.ProblemTable)
+	if err != nil {
+		return reply.Err(err)
+	}
+	problemList, err := model.GetProblem(sqlExec, nil)
+	if err != nil {
+		return reply.Err(err)
+	}
+	return reply.Success(200, map[string]interface{}{
+		"list": problemList,
+	})
+}
+
 func addProblemData(ctx *gin.Context) gin.HandlerFunc {
 	pid := ctx.Query("pid")
-
-	fmt.Println("pid: ", pid)
 	dst := common.Config.SandBox.ProblemDir + string(os.PathSeparator) + pid
 	os.MkdirAll(dst, os.ModePerm)
-	fmt.Println("dst: ", dst)
 	form, err := ctx.MultipartForm()
 	if err != nil {
 		return reply.Err(err)
@@ -106,7 +257,6 @@ func addProblemData(ctx *gin.Context) gin.HandlerFunc {
 	for i := 0; i < len(proDatas); i++ {
 		data, err := ioutil.ReadFile(proDatas[i].OutputFile)
 		if err != nil {
-			fmt.Println("hehehe", err)
 			continue
 		}
 		proDatas[i].MD5 = utils.CovertMD5(md5.Sum(data))
@@ -128,12 +278,4 @@ func FileNameNotExt(name string) string {
 		}
 	}
 	return name
-}
-
-func convert(b []byte) string {
-	s := make([]string, len(b))
-	for i := range b {
-		s[i] = strconv.Itoa(int(b[i]))
-	}
-	return strings.Join(s, ",")
 }
