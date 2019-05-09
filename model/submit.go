@@ -18,6 +18,9 @@ type Submit struct {
 	PID         int       `json:"pid" db:"pid"`
 	SubmitID    string    `json:"submit_id" db:"submit_id"`
 	Code        string    `json:"code" db:"code"`
+	Language    string    `json:"language" db:"language"`
+	RunTime     int       `json:"run_time" db:"run_time"`
+	Memory      int       `json:"memory" db:"memory"`
 	Result      string    `json:"result" db:"result"`
 	Author      string    `json:"author" db:"author"`
 	CreatedTime time.Time `json:"created_time" db:"created_time"`
@@ -34,6 +37,9 @@ func (submit *Submit) Valid() error {
 	if submit.Code == "" {
 		return errors.Errorf("invalid code")
 	}
+	if submit.Language == "" {
+		return errors.Errorf("language cannot be empty")
+	}
 	return nil
 }
 
@@ -41,8 +47,8 @@ func AddSubmit(sqlExec *db.SqlExec, sm *Submit) (int64, error) {
 	if err := sm.Valid(); err != nil {
 		return 0, errors.Wrap(err, "invalid submit")
 	}
-	result, err := sqlExec.Exec("INSERT INTO submit (pid, submit_id, code, result, author)"+
-		"VALUES (?, ?, ?, ?, ?)", sm.PID, sm.SubmitID, sm.Code, sm.Result, sm.Author)
+	result, err := sqlExec.Exec("INSERT INTO submit (pid, submit_id, code, language, run_time, memory, result, author)"+
+		"VALUES (?, ?, ?, ?, ?, ?, ?, ?)", sm.PID, sm.SubmitID, sm.Code, sm.Language, sm.RunTime, sm.Memory, sm.Result, sm.Author)
 	if err != nil {
 		return 0, errors.Wrap(err, "insert fail.")
 	}

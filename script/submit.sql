@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS `submit` (
   `result` VARCHAR(20) NOT NULL DEFAULT "waiting" COMMENT 'value: Accept, WrongAnswer, Time_limit, MemoryLimit,MemoryLimit,RuntimeError,SystemError, PresentationError, InternalError',
   `author` VARCHAR(22)  NULL COMMENT 'author ID',
   `code` VARCHAR(2000) DEFAULT "" COMMENT 'submit code',
+  `language` VARCHAR(20) NOT NULL COMMENT 'value: C, CPP, GO',
+  `Memory` INT NOT NULL DEFAULT 0 COMMENT 'Programs Use memory',
   `created_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
   PRIMARY KEY (`id`),
