@@ -5,7 +5,7 @@ const (
 	CPPLanguage = "CPP"
 	GoLanguage  = "Golang"
 
-	Accept            = "Accept"
+	Accept            = "Accepted"
 	WrongAnswer       = "Wrong Answer"
 	TimeLimit         = "Time Limit"
 	MemoryLimit       = "Memory Limit"

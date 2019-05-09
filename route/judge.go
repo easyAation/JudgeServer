@@ -62,6 +62,11 @@ func JudgeRouteModule() router.ModuleRoute {
 			http.MethodGet,
 			reply.Wrap(getProblems),
 		),
+		router.NewRouter(
+			"/v1/submit/list",
+			http.MethodGet,
+			reply.Wrap(getSubmits),
+		),
 	}
 
 	return router.ModuleRoute{
@@ -271,6 +276,34 @@ func addProblemData(ctx *gin.Context) gin.HandlerFunc {
 	})
 }
 
+// getSubmits support filters of uid, pid, language
+func getSubmits(ctx *gin.Context) gin.HandlerFunc {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	pid := ctx.Query("pid")
+	language := ctx.Query("language")
+
+	var filters map[string]interface{}
+	if pid != "" || language != "" {
+		filters = make(map[string]interface{})
+	}
+	if pid != "" {
+		filters["pid"] = pid
+	}
+	if language != "" {
+		filters["language"] = language
+	}
+	sqlExec, err := db.GetSqlExec(ctx.Request.Context(), "problem")
+	if err != nil {
+		return reply.Err(err)
+	}
+	submits, err := model.GetSubmits(sqlExec, filters)
+	if err != nil {
+		return reply.Err(err)
+	}
+	return reply.Success(200, map[string]interface{}{
+		"data": submits,
+	})
+}
 func FileNameNotExt(name string) string {
 	for i, c := range name {
 		if c == '.' {
