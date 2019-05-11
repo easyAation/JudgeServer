@@ -90,6 +90,7 @@ func judgeProblem(ctx *gin.Context) gin.HandlerFunc {
 		PID:      request.ProblemID,
 		SubmitID: request.ID,
 		Code:     request.Code,
+		Language: request.Language,
 	})
 	if err != nil {
 		return reply.Err(err)
@@ -104,18 +105,30 @@ func judgeProblem(ctx *gin.Context) gin.HandlerFunc {
 		return reply.Err(err)
 	}
 	go func() {
+		var (
+			runTime int64
+			memory  int64
+		)
 		status := common.Accept
 		sort.Slice(response, func(i, j int) bool {
 			return response[i].Index < response[j].Index
 		})
 		for _, result := range response {
+			if result.Memory > memory {
+				memory = result.Memory
+			}
+			if result.Time > runTime {
+				runTime = result.Time
+			}
 			if result.Status != common.Accept {
 				status = result.Status
 				break
 			}
 		}
 		_, err := model.UpdateSubmitBySID(sqlExec, request.ID, map[string]interface{}{
-			"result": status,
+			"result":   status,
+			"run_time": runTime,
+			"memory":   memory,
 		})
 		if err != nil {
 			log.Println(err)
@@ -183,7 +196,6 @@ func updateProblem(ctx *gin.Context) gin.HandlerFunc {
 	return reply.Success(http.StatusOK, nil)
 }
 func getProblem(ctx *gin.Context) gin.HandlerFunc {
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	pid := ctx.Query("pid")
 	if pid == "" {
 		return reply.Err(errors.Errorf("invalid param pid: %v", pid))
@@ -204,7 +216,6 @@ func getProblem(ctx *gin.Context) gin.HandlerFunc {
 }
 
 func getProblems(ctx *gin.Context) gin.HandlerFunc {
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	sqlExec, err := db.GetSqlExec(ctx.Request.Context(), model.ProblemTable)
 	if err != nil {
 		return reply.Err(err)
@@ -278,7 +289,6 @@ func addProblemData(ctx *gin.Context) gin.HandlerFunc {
 
 // getSubmits support filters of uid, pid, language
 func getSubmits(ctx *gin.Context) gin.HandlerFunc {
-	ctx.Header("Access-Control-Allow-Origin", "*")
 	pid := ctx.Query("pid")
 	language := ctx.Query("language")
 

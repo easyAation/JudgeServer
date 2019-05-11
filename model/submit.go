@@ -14,17 +14,17 @@ const (
 )
 
 type Submit struct {
-	ID          int64     `json:"id" db:"id"`
-	PID         int       `json:"pid" db:"pid"`
-	SubmitID    string    `json:"submit_id" db:"submit_id"`
-	Code        string    `json:"code" db:"code"`
-	Language    string    `json:"language" db:"language"`
-	RunTime     int       `json:"run_time" db:"run_time"`
-	Memory      int       `json:"memory" db:"memory"`
-	Result      string    `json:"result" db:"result"`
-	Author      string    `json:"author" db:"author"`
-	CreatedTime time.Time `json:"created_time" db:"created_time"`
-	UpdateTime  time.Time `json:"updated_time" db:"updated_time"`
+	ID        int64     `json:"id" db:"id"`
+	PID       int       `json:"pid" db:"pid"`
+	SubmitID  string    `json:"submit_id" db:"submit_id"`
+	Code      string    `json:"code" db:"code"`
+	Language  string    `json:"language" db:"language"`
+	RunTime   int       `json:"run_time" db:"run_time"`
+	Memory    int       `json:"memory" db:"memory"`
+	Result    string    `json:"result" db:"result"`
+	Author    string    `json:"author" db:"author"`
+	CreatedAT time.Time `json:"created_at" db:"created_at"`
+	UpdateAT  time.Time `json:"updated_at" db:"updated_at"`
 }
 
 func (submit *Submit) Valid() error {
