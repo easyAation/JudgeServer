@@ -4,9 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"github.com/easyAation/scaffold/db"
-	"strconv"
-
 	"github.com/easyAation/scaffold/router"
+	"github.com/gin-gonic/gin"
+	"strconv"
 
 	"online_judge/JudgeServer/common"
 	"online_judge/JudgeServer/route"
@@ -39,6 +39,15 @@ func init() {
 }
 
 func main() {
-	engine := router.BuildHandler(nil, route.JudgeRouteModule())
-	engine.Run(":" + strconv.Itoa(common.Config.Listen))
+	engine := router.BuildHandler([]router.MiddleWare{Cors}, route.JudgeRouteModule())
+	if err := engine.Run(":" + strconv.Itoa(common.Config.Listen)); err != nil {
+		panic(err)
+	}
+}
+
+func Cors(fn gin.HandlerFunc) gin.HandlerFunc {
+	return func(context *gin.Context) {
+		context.Header("Access-Control-Allow-Origin", "*")
+		fn(context)
+	}
 }
