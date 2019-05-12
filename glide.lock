@@ -1,10 +1,10 @@
 hash: fee90a261c50dc6d72a2df42438ae8eff8096986e0e11835ed74f0d8114b0b42
-updated: 2019-05-12T20:30:37.282796026+08:00
+updated: 2019-05-12T20:57:10.490324374+08:00
 imports:
 - name: github.com/BurntSushi/toml
   version: 3012a1dbe2e4bd1391d42b32f0577cb7bbc7f005
 - name: github.com/easyAation/scaffold
-  version: de5f52b948589e958592050075807865cebc3818
+  version: ae5cbfb9fdd7c7c5ac2107d0a1a72fd02490cbf8
   subpackages:
   - db
   - reply
