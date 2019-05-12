@@ -39,7 +39,7 @@ func init() {
 }
 
 func main() {
-	engine := router.BuildHandler([]router.MiddleWare{Cors}, route.JudgeRouteModule())
+	engine := router.BuildHandler([]router.MiddleWare{Cors}, route.JudgeRouteModule(), route.AccountRouteModule())
 	if err := engine.Run(":" + strconv.Itoa(common.Config.Listen)); err != nil {
 		panic(err)
 	}

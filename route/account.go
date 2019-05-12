@@ -2,6 +2,7 @@ package route
 
 import (
 	"net/http"
+	"online_judge/JudgeServer/utils"
 
 	"github.com/easyAation/scaffold/db"
 	"github.com/easyAation/scaffold/reply"
@@ -24,8 +25,14 @@ func AccountRouteModule() router.ModuleRoute {
 	}
 }
 func registerAccount(ctx *gin.Context) gin.HandlerFunc {
-	var ac model.Account
-	err := ctx.ShouldBind(&ac)
+	p := struct {
+		ID         string `json:"id"`
+		Name       string `json:"name"`
+		Password   string `json:"password"`
+		GithupAddr string `json:"githup_addr"`
+		BlogAddr   string `json:"blog_addr"`
+	}{}
+	err := ctx.ShouldBind(&p)
 	if err != nil {
 		return reply.Err(err)
 	}
@@ -33,7 +40,13 @@ func registerAccount(ctx *gin.Context) gin.HandlerFunc {
 	if err != nil {
 		return reply.Err(err)
 	}
-	err = model.RegisterAccout(sqlExec, ac)
+	err = model.RegisterAccout(sqlExec, model.Account{
+		ID:         p.ID,
+		Name:       p.Name,
+		Auth:       utils.EncryptPassword(p.ID, p.Password),
+		GitHupAddr: p.GithupAddr,
+		BlogAddr:   p.BlogAddr,
+	})
 	if err != nil {
 		return reply.Err(err)
 	}

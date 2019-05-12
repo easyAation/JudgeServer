@@ -2,7 +2,9 @@ package utils
 
 import (
 	"crypto/md5"
+	"encoding/hex"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"strconv"
 
@@ -27,4 +29,16 @@ func CovertMD5(nums [16]byte) string {
 		ans += strconv.Itoa(int(v))
 	}
 	return ans
+}
+
+func EncryptPassword(accountID, pwd string) string {
+	return MD5Sum(accountID[6:], pwd)
+}
+
+func MD5Sum(args ...string) string {
+	h := md5.New()
+	for _, arg := range args {
+		io.WriteString(h, arg)
+	}
+	return hex.EncodeToString(h.Sum(nil))
 }
