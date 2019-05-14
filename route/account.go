@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"online_judge/JudgeServer/utils"
 
-	"github.com/easyAation/scaffold/db"
 	"github.com/easyAation/scaffold/reply"
 	"github.com/easyAation/scaffold/router"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 
 	"online_judge/JudgeServer/model"
 )
@@ -15,9 +15,14 @@ import (
 func AccountRouteModule() router.ModuleRoute {
 	routes := []*router.Router{
 		router.NewRouter(
-			"v1/account/register",
+			"/v1/account/register",
 			http.MethodPost,
 			reply.Wrap(registerAccount),
+		),
+		router.NewRouter(
+			"/v1/signin",
+			http.MethodPost,
+			reply.Wrap(signin),
 		),
 	}
 	return router.ModuleRoute{
@@ -36,11 +41,7 @@ func registerAccount(ctx *gin.Context) gin.HandlerFunc {
 	if err != nil {
 		return reply.Err(err)
 	}
-	sqlExec, err := db.GetSqlExec(ctx.Request.Context(), "problem")
-	if err != nil {
-		return reply.Err(err)
-	}
-	err = model.RegisterAccout(sqlExec, model.Account{
+	err = model.RegisterAccount(ctx, model.Account{
 		ID:         p.ID,
 		Name:       p.Name,
 		Auth:       utils.EncryptPassword(p.ID, p.Password),
@@ -51,4 +52,33 @@ func registerAccount(ctx *gin.Context) gin.HandlerFunc {
 		return reply.Err(err)
 	}
 	return reply.Success(200, nil)
+}
+
+func signin(ctx *gin.Context) gin.HandlerFunc {
+	p := struct {
+		ID       string `json:"id"`
+		Password string `json:"password"`
+	}{}
+	err := ctx.ShouldBind(&p)
+	if err != nil {
+		return reply.Err(err)
+	}
+	ac, err := model.GetOneAccount(ctx, map[string]interface{}{
+		"id": p.ID,
+	})
+	if err != nil {
+		return reply.Err(err)
+	}
+
+	if utils.EncryptPassword(ac.ID, p.Password) != ac.Auth {
+		return reply.Err(errors.Errorf("invalid password"))
+	}
+
+	token, err := utils.CreateToken(ctx, p.ID, p.Password, ac.Auth)
+	if err != nil {
+		return reply.Err(err)
+	}
+	return reply.Success(200, map[string]interface{}{
+		"token": token,
+	})
 }

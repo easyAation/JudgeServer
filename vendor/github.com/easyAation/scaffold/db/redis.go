@@ -2,26 +2,51 @@ package db
 
 import (
         "context"
+        "fmt"
         "time"
 
         "github.com/gomodule/redigo/redis"
         "github.com/pkg/errors"
 )
 
+type RedisConfig struct {
+        Addr        string
+        Password    string
+        DB          int
+        MaxActive   int
+        MaxIdle     int
+        DialTimeout Duration
+}
+
+type Duration struct {
+        time.Duration
+}
+
+// UnmarshalText 将字符串形式的时长信息转换为Duration类型
+func (d *Duration) UnmarshalText(text []byte) (err error) {
+        d.Duration, err = time.ParseDuration(string(text))
+        return
+}
+
+// D 从Duration struct中取出time.Duration类型的值
+func (d *Duration) D() time.Duration {
+        return d.Duration
+}
+
 var Redis *redis.Pool
 
-func InitRedis(addr, password string, db, maxIdle, maxActive int, dialTimeout time.Duration) {
+func InitRedis(conf RedisConfig) error {
         var options = []redis.DialOption{
-                redis.DialDatabase(db),
-                redis.DialPassword(password),
+                redis.DialDatabase(conf.DB),
+                redis.DialPassword(conf.Password),
         }
-        if dialTimeout > 0 {
-                options = append(options, redis.DialConnectTimeout(dialTimeout))
+        if conf.DialTimeout.D()> 0 {
+                options = append(options, redis.DialConnectTimeout(conf.DialTimeout.D()))
         }
 
         pool := &redis.Pool{
                 Dial: func() (conn redis.Conn, e error) {
-                        c, err := redis.Dial("tcp", addr, options...)
+                        c, err := redis.Dial("tcp", conf.Addr, options...)
                         if err != nil {
                                 return nil, err
                         }
@@ -31,14 +56,15 @@ func InitRedis(addr, password string, db, maxIdle, maxActive int, dialTimeout ti
                         _, err := c.Do("PING")
                         return err
                 },
-                MaxIdle:   maxIdle,
-                MaxActive: maxActive,
+                MaxIdle:   conf.MaxIdle,
+                MaxActive: conf.MaxActive,
         }
 
         if pool.MaxActive > 0 {
                 pool.Wait = true
         }
         Redis = pool
+        return nil
 }
 
 // DO sends a command to the server and returns the receive reply.
@@ -78,6 +104,9 @@ func Set(ctx context.Context, key string, value interface{}, expiration time.Dur
                         return errors.Wrap(err, "")
                 }
         }
+        fmt.Println(expiration)
+        fmt.Println(expiration/time.Millisecond)
+        fmt.Println(expiration/time.Second)
         if expiration < time.Second && expiration > time.Millisecond {
                 if _, err := conn.Do("set", key, value, "px", int64(expiration/time.Millisecond)); err != nil {
                         return errors.Wrap(err, "")
