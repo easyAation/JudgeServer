@@ -3,17 +3,18 @@ package main
 import (
 	"flag"
 	"fmt"
+	"strconv"
+
 	"github.com/easyAation/scaffold/db"
 	"github.com/easyAation/scaffold/router"
 	"github.com/gin-gonic/gin"
-	"strconv"
 
 	"online_judge/JudgeServer/common"
 	"online_judge/JudgeServer/route"
 )
 
 var (
-	configPath = flag.String("conf", "conf/config.toml", "config file path.")
+	configPath = flag.String("conf", "conf/config.dev.toml", "config file path.")
 )
 
 func init() {
@@ -34,6 +35,10 @@ func init() {
 	// }
 	fmt.Println(common.Config.MySQL)
 	if err := db.RigisterDB("problem", &common.Config.MySQL); err != nil {
+		panic(err)
+	}
+
+	if err := db.InitRedis(common.Config.Redis); err != nil {
 		panic(err)
 	}
 }

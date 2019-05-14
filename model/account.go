@@ -1,9 +1,15 @@
 package model
 
 import (
+	"context"
+	"fmt"
+	"strings"
+
 	"github.com/easyAation/scaffold/db"
 	"github.com/pkg/errors"
 )
+
+const AccountTable = "account"
 
 type Account struct {
 	ID         string `json:"id" db:"id"`
@@ -25,8 +31,12 @@ func (ac *Account) Valid() error {
 	}
 	return nil
 }
-func RegisterAccout(sqlExec *db.SqlExec, ac Account) error {
+func RegisterAccount(ctx context.Context, ac Account) error {
 	if err := ac.Valid(); err != nil {
+		return err
+	}
+	sqlExec, err := db.GetSqlExec(ctx, "problem")
+	if err != nil {
 		return err
 	}
 	result, err := sqlExec.Exec("INSERT INTO account (id, name, auth, githup_addr, blog_addr) "+
@@ -36,4 +46,47 @@ func RegisterAccout(sqlExec *db.SqlExec, ac Account) error {
 	}
 	_, err = result.LastInsertId()
 	return err
+}
+
+func GetAccounts(ctx context.Context, filter map[string]interface{}) ([]Account, error) {
+	sqlExec, err := db.GetSqlExec(ctx, "problem")
+	if err != nil {
+		return nil, err
+	}
+	placeHolder := make([]string, 0, len(filter))
+	for key, value := range filter {
+		placeHolder = append(placeHolder, fmt.Sprintf("%s=%v", key, value))
+	}
+	sql := "SELECT * FROM " + AccountTable
+	if len(placeHolder) != 0 {
+		sql += " WHERE " + strings.Join(placeHolder, " AND ")
+	}
+	fmt.Println(sql)
+	rows, err := sqlExec.Queryx(sql)
+	if err != nil {
+		return nil, err
+	}
+	var accounts []Account
+	for rows.Next() {
+		var account Account
+		if err = rows.StructScan(&account); err != nil {
+			return nil, errors.Wrap(err, "scan problem fail.")
+		}
+		accounts = append(accounts, account)
+	}
+	return accounts, nil
+}
+
+func GetOneAccount(ctx context.Context, filters map[string]interface{}) (*Account, error) {
+	accounts, err := GetAccounts(ctx, filters)
+	if err != nil {
+		return nil, err
+	}
+	if len(accounts) == 0 {
+		return nil, errors.Errorf("user not found.")
+	}
+	if len(accounts) != 1 {
+		return nil, errors.Errorf("expect one, but result is %d", len(accounts))
+	}
+	return &accounts[0], nil
 }

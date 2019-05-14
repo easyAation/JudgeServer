@@ -2,13 +2,13 @@ listen = 2010
 allowCORS = false
 
 [mysql]
-connStr = "root:123456@tcp(xxxxx:3306)/problem?charset=utf8mb4&parseTime=True&loc=Asia%2FShanghai&time_zone=%27%2B8%3A00%27"
+connStr = "root:123456@tcp(47.93.206.195:3306)/problem?charset=utf8mb4&parseTime=True&loc=Asia%2FShanghai&time_zone=%27%2B8%3A00%27"
 maxIdleConns = 200
 maxOpenConns = 200
 
 [redis]
-addr = "xxxxxx"
-password = "xxxxx"
+addr = "47.93.206.195:6379"
+password = "123456"
 db = 1
 maxIdle = 10
 maxActive = 10

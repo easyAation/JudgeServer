@@ -12,15 +12,12 @@ type Configs struct {
 	Listen    int
 	AllowCORS bool
 	MySQL     db.MySQLConfig
+	Redis     db.RedisConfig
 	Compile   CompileConfig
 	SandBox   SandBoxConfig
+	Token     TokenConfig
 }
 
-type MySQLConfig struct {
-	ConnStr string
-	MaxIdle int
-	MaxOpen int
-}
 type CompileConfig struct {
 	CodeDir string
 	ExeDir  string
@@ -30,6 +27,10 @@ type SandBoxConfig struct {
 	Exe        string
 	ProblemDir string
 	OutPutDir  string
+}
+
+type TokenConfig struct {
+	Expiration Duration
 }
 
 func InitConfig(fpath string) {
