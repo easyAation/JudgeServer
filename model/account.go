@@ -42,7 +42,10 @@ func RegisterAccount(ctx context.Context, ac Account) error {
 	result, err := sqlExec.Exec("INSERT INTO account (id, name, auth, githup_addr, blog_addr) "+
 		"VALUES(?, ?, ?, ?, ?)", ac.ID, ac.Name, ac.Auth, ac.GitHupAddr, ac.BlogAddr)
 	if err != nil {
-		return errors.Wrap(err, "db error.")
+		if strings.Contains(err.Error(), "PRIMARY") {
+			err = errors.Errorf("Account number already exists")
+		}
+		return errors.Wrap(err, "")
 	}
 	_, err = result.LastInsertId()
 	return err

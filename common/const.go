@@ -13,4 +13,7 @@ const (
 	SysteamError      = "System Error"
 	PresentationError = "Presentation Error"
 	InternalError     = "internal Error"
+
+	// token header
+	AuthHeader = "Authorization"
 )

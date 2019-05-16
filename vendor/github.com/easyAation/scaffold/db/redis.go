@@ -139,3 +139,7 @@ func GetStr(ctx context.Context, key string) (string, error) {
         }
         return redis.String(reply, nil)
 }
+
+func Tx() {
+
+}

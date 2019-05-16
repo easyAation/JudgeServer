@@ -1,0 +1,16 @@
+FATAL [2019-04-08 07:23:28] [/home/lianxm/go/src/online_judge/Judger/src/child.c:101]Error: System errno: Is a directory; Internal errno: DUP2_FAILED
+FATAL [2019-04-08 07:24:58] [/home/lianxm/go/src/online_judge/Judger/src/child.c:101]Error: System errno: Is a directory; Internal errno: DUP2_FAILED
+FATAL [2019-04-08 07:25:17] [/home/lianxm/go/src/online_judge/Judger/src/child.c:101]Error: System errno: Is a directory; Internal errno: DUP2_FAILED
+FATAL [2019-04-08 07:25:22] [/home/lianxm/go/src/online_judge/Judger/src/child.c:101]Error: System errno: Is a directory; Internal errno: DUP2_FAILED
+FATAL [2019-04-08 07:25:23] [/home/lianxm/go/src/online_judge/Judger/src/child.c:101]Error: System errno: Is a directory; Internal errno: DUP2_FAILED
+FATAL [2019-04-08 07:25:24] [/home/lianxm/go/src/online_judge/Judger/src/child.c:101]Error: System errno: Is a directory; Internal errno: DUP2_FAILED
+FATAL [2019-04-08 07:25:25] [/home/lianxm/go/src/online_judge/Judger/src/child.c:101]Error: System errno: Is a directory; Internal errno: DUP2_FAILED
+FATAL [2019-04-08 07:25:32] [/home/lianxm/go/src/online_judge/Judger/src/child.c:101]Error: System errno: Is a directory; Internal errno: DUP2_FAILED
+FATAL [2019-04-08 07:25:38] [/home/lianxm/go/src/online_judge/Judger/src/child.c:101]Error: System errno: Is a directory; Internal errno: DUP2_FAILED
+FATAL [2019-04-08 07:25:40] [/home/lianxm/go/src/online_judge/Judger/src/child.c:101]Error: System errno: Is a directory; Internal errno: DUP2_FAILED
+FATAL [2019-04-08 07:25:44] [/home/lianxm/go/src/online_judge/Judger/src/child.c:101]Error: System errno: Is a directory; Internal errno: DUP2_FAILED
+FATAL [2019-04-08 07:25:46] [/home/lianxm/go/src/online_judge/Judger/src/child.c:101]Error: System errno: Is a directory; Internal errno: DUP2_FAILED
+FATAL [2019-04-08 07:29:07] [/home/lianxm/go/src/online_judge/Judger/src/child.c:101]Error: System errno: Is a directory; Internal errno: DUP2_FAILED
+FATAL [2019-04-08 07:30:27] [/home/lianxm/go/src/online_judge/Judger/src/child.c:101]Error: System errno: Is a directory; Internal errno: DUP2_FAILED
+FATAL [2019-04-08 07:30:50] [/home/lianxm/go/src/online_judge/Judger/src/child.c:101]Error: System errno: Is a directory; Internal errno: DUP2_FAILED
+FATAL [2019-04-08 07:31:00] [/home/lianxm/go/src/online_judge/Judger/src/child.c:101]Error: System errno: Is a directory; Internal errno: DUP2_FAILED

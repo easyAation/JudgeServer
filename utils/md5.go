@@ -31,8 +31,8 @@ func CovertMD5(nums [16]byte) string {
 	return ans
 }
 
-func EncryptPassword(accountID, pwd string) string {
-	return MD5Sum(accountID[6:], pwd)
+func EncryptPassword(args ...string) string {
+	return MD5Sum(args...)
 }
 
 func MD5Sum(args ...string) string {

@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"online_judge/JudgeServer/middleware"
 	"os"
 	"path"
 	"sort"
@@ -51,6 +52,7 @@ func JudgeRouteModule() router.ModuleRoute {
 			"/v1/problem/update",
 			http.MethodPost,
 			reply.Wrap(updateProblem),
+			middleware.VerifyLogin,
 		),
 		router.NewRouter(
 			"/v1/problem/detail",

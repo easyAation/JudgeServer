@@ -1,6 +1,7 @@
 package route
 
 import (
+	"fmt"
 	"net/http"
 	"online_judge/JudgeServer/utils"
 
@@ -37,10 +38,11 @@ func registerAccount(ctx *gin.Context) gin.HandlerFunc {
 		GithupAddr string `json:"githup_addr"`
 		BlogAddr   string `json:"blog_addr"`
 	}{}
-	err := ctx.ShouldBind(&p)
+	err := ctx.ShouldBindJSON(&p)
 	if err != nil {
 		return reply.Err(err)
 	}
+	fmt.Println(p)
 	err = model.RegisterAccount(ctx, model.Account{
 		ID:         p.ID,
 		Name:       p.Name,
@@ -59,7 +61,7 @@ func signin(ctx *gin.Context) gin.HandlerFunc {
 		ID       string `json:"id"`
 		Password string `json:"password"`
 	}{}
-	err := ctx.ShouldBind(&p)
+	err := ctx.ShouldBindJSON(&p)
 	if err != nil {
 		return reply.Err(err)
 	}
@@ -80,5 +82,6 @@ func signin(ctx *gin.Context) gin.HandlerFunc {
 	}
 	return reply.Success(200, map[string]interface{}{
 		"token": token,
+		"name":  ac.Name,
 	})
 }
