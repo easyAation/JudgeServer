@@ -58,7 +58,7 @@ func GetAccounts(ctx context.Context, filter map[string]interface{}) ([]Account,
 	}
 	placeHolder := make([]string, 0, len(filter))
 	for key, value := range filter {
-		placeHolder = append(placeHolder, fmt.Sprintf("%s=%v", key, value))
+		placeHolder = append(placeHolder, fmt.Sprintf("%s='%v'", key, value))
 	}
 	sql := "SELECT * FROM " + AccountTable
 	if len(placeHolder) != 0 {

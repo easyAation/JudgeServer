@@ -70,11 +70,7 @@ func UpdateSubmitBySID(sqlExec *db.SqlExec, sID string, values map[string]interf
 	}
 	placeHolder := make([]string, 0, len(values))
 	for key, value := range values {
-		if _, ok := value.(int); ok {
-			placeHolder = append(placeHolder, fmt.Sprintf("%s=%v", key, value))
-		} else {
-			placeHolder = append(placeHolder, fmt.Sprintf("%s=\"%v\"", key, value))
-		}
+		placeHolder = append(placeHolder, fmt.Sprintf("%s='%v'", key, value))
 	}
 	sql := fmt.Sprintf("UPDATE %s SET %s WHERE submit_id=\"%s\"", SubmitTable, strings.Join(placeHolder, " , "), sID)
 	log.Println(sql)
@@ -88,12 +84,7 @@ func UpdateSubmitBySID(sqlExec *db.SqlExec, sID string, values map[string]interf
 func GetSubmits(ctx context.Context, filters map[string]interface{}) ([]Submit, error) {
 	placeHolder := make([]string, 0, len(filters))
 	for key, value := range filters {
-		if _, ok := value.(string); ok {
-			placeHolder = append(placeHolder, fmt.Sprintf("%s=\"%v\"", key, value))
-		} else {
-			placeHolder = append(placeHolder, fmt.Sprintf("%s=%v", key, value))
-		}
-
+		placeHolder = append(placeHolder, fmt.Sprintf("%s='%v'", key, value))
 	}
 	sql := "SELECT * FROM " + SubmitTable
 	if len(placeHolder) != 0 {
