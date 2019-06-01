@@ -1,12 +1,16 @@
 package model
 
 import (
+	"context"
 	"fmt"
-	"github.com/easyAation/scaffold/db"
-	"github.com/pkg/errors"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/easyAation/scaffold/db"
+	"github.com/pkg/errors"
+
+	"online_judge/JudgeServer/common"
 )
 
 const (
@@ -15,12 +19,13 @@ const (
 
 type Submit struct {
 	ID        int64     `json:"id" db:"id"`
+	UID       string    `json:"uid" db:"uid"`
 	PID       int       `json:"pid" db:"pid"`
 	SubmitID  string    `json:"submit_id" db:"submit_id"`
 	Code      string    `json:"code" db:"code"`
 	Language  string    `json:"language" db:"language"`
-	RunTime   int       `json:"run_time" db:"run_time"`
-	Memory    int       `json:"memory" db:"memory"`
+	RunTime   int64     `json:"run_time" db:"run_time"`
+	Memory    int64     `json:"memory" db:"memory"`
 	Result    string    `json:"result" db:"result"`
 	Author    string    `json:"author" db:"author"`
 	CreatedAT time.Time `json:"created_at" db:"created_at"`
@@ -30,6 +35,9 @@ type Submit struct {
 func (submit *Submit) Valid() error {
 	if submit.PID == 0 {
 		return errors.Errorf("invalid pid")
+	}
+	if submit.UID == "" {
+		return errors.Errorf("invalid uid")
 	}
 	if submit.SubmitID == "" {
 		return errors.Errorf("invalid summit id")
@@ -47,8 +55,9 @@ func AddSubmit(sqlExec *db.SqlExec, sm *Submit) (int64, error) {
 	if err := sm.Valid(); err != nil {
 		return 0, errors.Wrap(err, "invalid submit")
 	}
-	result, err := sqlExec.Exec("INSERT INTO submit (pid, submit_id, code, language, run_time, memory, result, author)"+
-		"VALUES (?, ?, ?, ?, ?, ?, ?, ?)", sm.PID, sm.SubmitID, sm.Code, sm.Language, sm.RunTime, sm.Memory, sm.Result, sm.Author)
+	result, err := sqlExec.Exec("INSERT INTO submit (pid, uid, submit_id, code, language, run_time, memory, result, author)"+
+		" VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", sm.PID, sm.UID, sm.SubmitID, sm.Code, sm.Language, sm.RunTime,
+		sm.Memory, sm.Result, sm.Author)
 	if err != nil {
 		return 0, errors.Wrap(err, "insert fail.")
 	}
@@ -76,16 +85,22 @@ func UpdateSubmitBySID(sqlExec *db.SqlExec, sID string, values map[string]interf
 	return result.RowsAffected()
 }
 
-func GetSubmits(sqlExec *db.SqlExec, filters map[string]interface{}) ([]Submit, error) {
+func GetSubmits(ctx context.Context, filters map[string]interface{}) ([]Submit, error) {
 	placeHolder := make([]string, 0, len(filters))
 	for key, value := range filters {
-		placeHolder = append(placeHolder, fmt.Sprintf("%s=%v", key, value))
+		if _, ok := value.(string); ok {
+			placeHolder = append(placeHolder, fmt.Sprintf("%s=\"%v\"", key, value))
+		} else {
+			placeHolder = append(placeHolder, fmt.Sprintf("%s=%v", key, value))
+		}
+
 	}
 	sql := "SELECT * FROM " + SubmitTable
 	if len(placeHolder) != 0 {
 		sql += " WHERE " + strings.Join(placeHolder, " AND ")
 	}
 	log.Println(sql)
+	sqlExec, err := db.GetSqlExec(ctx, "problem")
 	rows, err := sqlExec.Queryx(sql)
 	if err != nil {
 		return nil, errors.Wrap(err, " ")
@@ -101,8 +116,8 @@ func GetSubmits(sqlExec *db.SqlExec, filters map[string]interface{}) ([]Submit, 
 	return sms, nil
 }
 
-func GetOneSubmit(sqlExec *db.SqlExec, filters map[string]interface{}) (*Submit, error) {
-	sms, err := GetSubmits(sqlExec, filters)
+func GetOneSubmit(ctx context.Context, filters map[string]interface{}) (*Submit, error) {
+	sms, err := GetSubmits(ctx, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -110,4 +125,25 @@ func GetOneSubmit(sqlExec *db.SqlExec, filters map[string]interface{}) (*Submit,
 		return nil, errors.Errorf("expect ont. but result is %d", len(sms))
 	}
 	return &sms[0], nil
+}
+
+func GetUserSolves(ctx context.Context, uid string) ([]int, error) {
+	sms, err := GetSubmits(ctx, map[string]interface{}{
+		"uid":    uid,
+		"result": common.Accept,
+	})
+	if err != nil {
+		return nil, err
+	}
+	var (
+		pre  = 0
+		pids = make([]int, 0)
+	)
+	for _, sm := range sms {
+		if pre == 0 || pre != sm.PID {
+			pids = append(pids, sm.PID)
+			pre = sm.PID
+		}
+	}
+	return pids, nil
 }

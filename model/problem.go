@@ -2,11 +2,12 @@ package model
 
 import (
 	"fmt"
-	"github.com/easyAation/scaffold/db"
-	"github.com/pkg/errors"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/easyAation/scaffold/db"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -25,6 +26,8 @@ type Problem struct {
 	InputDes       string    `json:"input_des" db:"input_des"`
 	OutputDes      string    `json:"output_des" db:"output_des"`
 	Hint           string    `json:"hint" db:"hint"`
+	Solve          int       `json:"solve"`
+	Submission     int       `json:"submission" db:"submission"`
 	TimeLimit      int64     `json:"time_limit" db:"time_limit"`
 	MemoryLimit    int64     `json:"memory_limit" db:"memory_limit"`
 	AuthorCode     string    `json:"author_code" db:"author_code"`
@@ -104,11 +107,11 @@ func GetOneProblem(sqlExec *db.SqlExec, filters map[string]interface{}) (*Proble
 func UpdateProblem(sqlExec *db.SqlExec, id int64, values map[string]interface{}) (int64, error) {
 	placeHolder := make([]string, 0, len(values))
 	for key, value := range values {
-		if _, ok := value.(int); ok {
-			placeHolder = append(placeHolder, fmt.Sprintf("%s=%v", key, value))
-		} else {
-			placeHolder = append(placeHolder, fmt.Sprintf("%s=\"%v\"", key, value))
+		if _, ok := value.(string); ok {
+			value = strings.Replace(value.(string), "\"", "\\", -1)
 		}
+		placeHolder = append(placeHolder, fmt.Sprintf("%s='%v'", key, value))
+
 	}
 	sql := fmt.Sprintf("UPDATE problem set %s where id = %d", strings.Join(placeHolder, " , "), id)
 	log.Println(sql)

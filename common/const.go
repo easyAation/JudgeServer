@@ -6,6 +6,7 @@ const (
 	GoLanguage  = "Golang"
 
 	Accept            = "Accepted"
+	CompileError      = "Compile Error"
 	WrongAnswer       = "Wrong Answer"
 	TimeLimit         = "Time Limit"
 	MemoryLimit       = "Memory Limit"

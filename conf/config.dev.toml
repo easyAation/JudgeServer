@@ -30,3 +30,6 @@ outputDir = ".online_judge/output"
 
 [token]
 expiration = "30m"
+
+[static]
+imagePath = "/home/lianxm/go/src/online_judge/JudgeServer/static"

@@ -10,7 +10,6 @@ import (
 	"online_judge/JudgeServer/middleware"
 	"os"
 	"path"
-	"sort"
 	"strconv"
 	"strings"
 
@@ -32,21 +31,25 @@ func JudgeRouteModule() router.ModuleRoute {
 			"/v1/judge_problem",
 			http.MethodPost,
 			reply.Wrap(judgeProblem),
+			middleware.VerifyLogin,
 		),
 		router.NewRouter(
 			"/v1/submission/submit",
 			http.MethodPost,
 			reply.Wrap(judgeProblem),
+			middleware.VerifyLogin,
 		),
 		router.NewRouter(
 			"/v1/problem/add_data",
 			http.MethodPost,
 			reply.Wrap(addProblemData),
+			middleware.VerifyLogin,
 		),
 		router.NewRouter(
 			"/v1/problem/add",
 			http.MethodPost,
 			reply.Wrap(addProblem),
+			middleware.VerifyLogin,
 		),
 		router.NewRouter(
 			"/v1/problem/update",
@@ -69,6 +72,12 @@ func JudgeRouteModule() router.ModuleRoute {
 			http.MethodGet,
 			reply.Wrap(getSubmits),
 		),
+		router.NewRouter(
+			"/v1/user/solves",
+			http.MethodGet,
+			reply.Wrap(getUserSolve),
+			middleware.VerifyLogin,
+		),
 	}
 
 	return router.ModuleRoute{
@@ -84,60 +93,45 @@ func judgeProblem(ctx *gin.Context) gin.HandlerFunc {
 	}
 
 	fmt.Println("request: ", request)
+
+	sandBox, err := sandbox.NewSandBox(request)
+	if err != nil {
+		return reply.Err(err)
+	}
+	res, err := sandBox.Run()
+	if err != nil {
+		return reply.Err(err)
+	}
 	sqlExec, err := db.GetSqlExec(ctx.Request.Context(), "problem")
 	if err != nil {
 		return reply.Err(err)
 	}
+
 	rowsAffected, err := model.AddSubmit(sqlExec, &model.Submit{
 		PID:      request.ProblemID,
+		UID:      middleware.GetCurrentID(ctx),
 		SubmitID: request.ID,
 		Code:     request.Code,
 		Language: request.Language,
+		Result:   res.Status,
+		RunTime:  res.Time,
+		Memory:   res.Memory,
 	})
 	if err != nil {
 		return reply.Err(err)
 	}
 	log.Printf("%d rows affected.", rowsAffected)
-	sandBox, err := sandbox.NewSandBox(request)
-	if err != nil {
-		return reply.Err(err)
-	}
-	response, err := sandBox.Run()
-	if err != nil {
-		return reply.Err(err)
-	}
-	go func() {
-		var (
-			runTime int64
-			memory  int64
-		)
-		status := common.Accept
-		sort.Slice(response, func(i, j int) bool {
-			return response[i].Index < response[j].Index
-		})
-		for _, result := range response {
-			if result.Memory > memory {
-				memory = result.Memory
-			}
-			if result.Time > runTime {
-				runTime = result.Time
-			}
-			if result.Status != common.Accept {
-				status = result.Status
-				break
-			}
-		}
-		_, err := model.UpdateSubmitBySID(sqlExec, request.ID, map[string]interface{}{
-			"result":   status,
-			"run_time": runTime,
-			"memory":   memory,
-		})
-		if err != nil {
-			log.Println(err)
-		}
-	}()
+
 	return reply.Success(http.StatusOK, map[string]interface{}{
-		"data": response,
+		"data": struct {
+			Result string `json:"result"`
+			Time   int64  `json:"tint"`
+			Memory int64  `json:"memory"`
+		}{
+			res.Status,
+			res.Time,
+			res.Memory,
+		},
 	})
 }
 
@@ -291,12 +285,16 @@ func addProblemData(ctx *gin.Context) gin.HandlerFunc {
 
 // getSubmits support filters of uid, pid, language
 func getSubmits(ctx *gin.Context) gin.HandlerFunc {
+	sid := ctx.Query("sid")
 	pid := ctx.Query("pid")
 	language := ctx.Query("language")
 
 	var filters map[string]interface{}
-	if pid != "" || language != "" {
+	if pid != "" || language != "" || sid != "" {
 		filters = make(map[string]interface{})
+	}
+	if sid != "" {
+		filters["submit_id"] = sid
 	}
 	if pid != "" {
 		filters["pid"] = pid
@@ -304,18 +302,26 @@ func getSubmits(ctx *gin.Context) gin.HandlerFunc {
 	if language != "" {
 		filters["language"] = language
 	}
-	sqlExec, err := db.GetSqlExec(ctx.Request.Context(), "problem")
-	if err != nil {
-		return reply.Err(err)
-	}
-	submits, err := model.GetSubmits(sqlExec, filters)
+	submits, err := model.GetSubmits(ctx, filters)
 	if err != nil {
 		return reply.Err(err)
 	}
 	return reply.Success(200, map[string]interface{}{
-		"data": submits,
+		"data":  submits,
+		"total": len(submits),
 	})
 }
+
+func getUserSolve(ctx *gin.Context) gin.HandlerFunc {
+	pids, err := model.GetUserSolves(ctx, middleware.GetCurrentID(ctx))
+	if err != nil {
+		return reply.Err(err)
+	}
+	return reply.Success(200, map[string]interface{}{
+		"data": pids,
+	})
+}
+
 func FileNameNotExt(name string) string {
 	for i, c := range name {
 		if c == '.' {

@@ -14,7 +14,7 @@ const AccountTable = "account"
 type Account struct {
 	ID         string `json:"id" db:"id"`
 	Name       string `json:"name" db:"name"`
-	Auth       string `json:"aut" db:"auth"` // 加密处理
+	Auth       string `json:"auth" db:"auth"` // 加密处理
 	GitHupAddr string `json:"githup_addr" db:"githup_addr"`
 	BlogAddr   string `json:"blog_addr" db:"blog_addr"`
 }

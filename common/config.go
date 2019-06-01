@@ -16,6 +16,7 @@ type Configs struct {
 	Compile   CompileConfig
 	SandBox   SandBoxConfig
 	Token     TokenConfig
+	Static    StaticConfig
 }
 
 type CompileConfig struct {
@@ -31,6 +32,10 @@ type SandBoxConfig struct {
 
 type TokenConfig struct {
 	Expiration Duration
+}
+
+type StaticConfig struct {
+	ImagePath string
 }
 
 func InitConfig(fpath string) {

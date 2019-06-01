@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/easyAation/scaffold/db"
@@ -124,12 +125,14 @@ func (s *SandBox) compile() error {
 	}
 	return nil
 }
-func (s *SandBox) Run() ([]Result, error) {
+func (s *SandBox) Run() (*Result, error) {
 	if err := s.SaveCodeFile(); err != nil {
 		return nil, errors.Wrap(err, "save file error.")
 	}
 	if err := s.compile(); err != nil {
-		return nil, errors.Wrap(err, "compile error.")
+		return &Result{
+			Status: common.CompileError,
+		}, nil
 	}
 
 	sqlExec, err := db.GetSqlExec(context.Background(), "problem")
@@ -172,5 +175,24 @@ func (s *SandBox) Run() ([]Result, error) {
 		results = append(results, result)
 		fmt.Printf("output file: %s\n", outputFile)
 	}
-	return results, nil
+
+	res := Result{
+		Status: common.Accept,
+	}
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].Index < results[j].Index
+	})
+	for _, result := range results {
+		if result.Memory > res.Memory {
+			res.Memory = result.Memory
+		}
+		if result.Time > res.Time {
+			res.Time = result.Time
+		}
+		if res.Status != result.Status {
+			res.Status = result.Status
+			break
+		}
+	}
+	return &res, nil
 }

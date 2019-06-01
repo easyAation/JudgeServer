@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS `submit` (
   `id`   INT NOT NULL AUTO_INCREMENT COMMENT 'primary key',
+  `uid`  VARCHAR(100) NOT NULL COMMENT 'user id',
   `pid`  INT NOT NULL COMMENT 'problem ID',
   `submit_id` VARCHAR(22) NOT NULL COMMENT 'submit ID',
   `result` VARCHAR(20) NOT NULL DEFAULT "waiting" COMMENT 'value: Accept, WrongAnswer, Time_limit, MemoryLimit,MemoryLimit,RuntimeError,SystemError, PresentationError, InternalError',
