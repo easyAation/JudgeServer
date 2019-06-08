@@ -15,7 +15,7 @@ const (
 )
 
 type Problem struct {
-	ID             int       `json:"id" db:"id"`
+	ID             int64     `json:"id" db:"id"`
 	Name           string    `json:"name" db:"name"`
 	Author         string    `json:"author" db:"author"`
 	Status         string    `json:"status,omitempty" db:"status,omitempty"`
@@ -71,7 +71,7 @@ func GetProblem(sqlExec *db.SqlExec, filters map[string]interface{}) ([]Problem,
 	placeHolder := make([]string, 0, len(filters))
 	for key, value := range filters {
 		// placeHolderValue = append(placeHolderValue, "?")
-		placeHolder = append(placeHolder, fmt.Sprintf("%s=%v", key, value))
+		placeHolder = append(placeHolder, fmt.Sprintf("%s='%v'", key, value))
 	}
 	sql := "SELECT * FROM " + ProblemTable
 	if len(placeHolder) != 0 {
