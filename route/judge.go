@@ -7,11 +7,12 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"online_judge/JudgeServer/middleware"
 	"os"
 	"path"
+	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/easyAation/scaffold/db"
 	"github.com/easyAation/scaffold/reply"
@@ -20,6 +21,7 @@ import (
 	"github.com/pkg/errors"
 
 	"online_judge/JudgeServer/common"
+	"online_judge/JudgeServer/middleware"
 	"online_judge/JudgeServer/model"
 	"online_judge/JudgeServer/sandbox"
 	"online_judge/JudgeServer/utils"
@@ -77,6 +79,17 @@ func JudgeRouteModule() router.ModuleRoute {
 			http.MethodGet,
 			reply.Wrap(getUserSolve),
 			middleware.VerifyLogin,
+		),
+		router.NewRouter(
+			"/v1/contest/create",
+			http.MethodPost,
+			reply.Wrap(createContest),
+			middleware.VerifyLogin,
+		),
+		router.NewRouter(
+			"/v1/contest",
+			http.MethodGet,
+			reply.Wrap(getContest),
 		),
 	}
 
@@ -319,6 +332,108 @@ func getUserSolve(ctx *gin.Context) gin.HandlerFunc {
 	}
 	return reply.Success(200, map[string]interface{}{
 		"data": pids,
+	})
+}
+
+func createContest(ctx *gin.Context) gin.HandlerFunc {
+	var (
+		c = struct {
+			Title      string `json:"title"`
+			Encrypt    int    `json:"encrypt"`
+			StartAt    int64  `json:"start"`
+			EndAt      int64  `json:"end"`
+			ProblemIDs []int  `json:"list"`
+		}{}
+	)
+	err := ctx.ShouldBindJSON(&c)
+	if err != nil {
+		return reply.Err(errors.Wrap(err, ""))
+	}
+	fmt.Println(c)
+	cid, err := model.AddContest(ctx, model.Contest{
+		Title:   c.Title,
+		Encrypt: c.Encrypt,
+		StartAt: time.Unix(c.StartAt/1000, c.StartAt%1000),
+		EndAt:   time.Unix(c.EndAt/1000, c.StartAt%1000),
+	})
+	if err != nil {
+		return reply.Err(err)
+	}
+
+	sqlExec, err := db.GetSqlExec(ctx, "problem")
+	if err != nil {
+		return reply.ErrorWithMessage(err, "internal error")
+	}
+	err = func() error {
+		tx, err := sqlExec.Beginx()
+		if err != nil {
+			return errors.Errorf("internal error")
+		}
+		defer func() {
+			if err != nil && tx != nil {
+				tx.Rollback()
+			}
+		}()
+		for index, pid := range c.ProblemIDs {
+			_, err = tx.Exec("INSERT INTO contest_problem (cid,pid, position) VALUES (?, ?, ?)", cid,
+				pid, index)
+			if err != nil {
+				return errors.Errorf("internal error")
+			}
+		}
+		return tx.Commit()
+	}()
+
+	if err != nil {
+		return reply.Err(err)
+	}
+	return reply.Success(200, map[string]interface{}{
+		"cid": cid,
+	})
+}
+
+func getContest(ctx *gin.Context) gin.HandlerFunc {
+	cid := ctx.Query("cid")
+	if cid == "" {
+		return reply.ErrorWithMessage(nil, "invalid cid")
+	}
+	sqlExec, err := db.GetSqlExec(ctx, "problem")
+	if err != nil {
+		return reply.Err(err)
+	}
+	contest, err := model.GetOneContest(sqlExec, map[string]interface{}{
+		"id": cid,
+	})
+	if err != nil {
+		return reply.Err(err)
+	}
+	list, err := model.GetContestProblems(sqlExec, map[string]interface{}{
+		"cid": cid,
+	})
+	if err != nil {
+		return reply.Err(err)
+	}
+	sort.Slice(list, func(i, j int) bool {
+		return list[i].Position < list[j].Position
+	})
+
+	allProblems, err := model.GetProblem(sqlExec, nil)
+	if err != nil {
+		return reply.Err(err)
+	}
+
+	for i := 0; i < len(list); i++ {
+		for _, pro := range allProblems {
+			if list[i].PID == pro.ID {
+				list[i].Title = pro.Name
+				break
+			}
+		}
+	}
+	return reply.Success(200, map[string]interface{}{
+		"contest": contest,
+		"list":    list,
+		"total":   len(list),
 	})
 }
 
