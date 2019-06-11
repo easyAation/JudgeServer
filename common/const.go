@@ -7,6 +7,7 @@ const (
 
 	Accept            = "Accepted"
 	CompileError      = "Compile Error"
+	Running           = "Running"
 	WrongAnswer       = "Wrong Answer"
 	TimeLimit         = "Time Limit"
 	MemoryLimit       = "Memory Limit"

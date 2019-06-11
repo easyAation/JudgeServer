@@ -11,8 +11,8 @@ import (
 	"github.com/pkg/errors"
 
 	"online_judge/JudgeServer/common"
-	"online_judge/JudgeServer/utils"
 	"online_judge/JudgeServer/model"
+	"online_judge/JudgeServer/utils"
 )
 
 func AccountRouteModule() router.ModuleRoute {
@@ -32,7 +32,6 @@ func AccountRouteModule() router.ModuleRoute {
 			http.MethodGet,
 			reply.Wrap(userRank),
 		),
-		
 	}
 	return router.ModuleRoute{
 		Routers: routes,
@@ -108,17 +107,26 @@ func registerAccount(ctx *gin.Context) gin.HandlerFunc {
 		return reply.Err(err)
 	}
 	fmt.Println(p)
-	err = model.RegisterAccount(ctx, model.Account{
+	ac := model.Account{
 		ID:         p.ID,
 		Name:       p.Name,
 		Auth:       utils.EncryptPassword(p.ID, p.Password),
 		GitHupAddr: p.GithupAddr,
 		BlogAddr:   p.BlogAddr,
-	})
+	}
+	err = model.RegisterAccount(ctx, ac)
 	if err != nil {
 		return reply.Err(err)
 	}
-	return reply.Success(200, nil)
+	token, err := utils.CreateToken(ctx, p.ID, p.Password, ac.Auth)
+	if err != nil {
+		return reply.Err(err)
+	}
+
+	return reply.Success(200, map[string]interface{}{
+		"name":  ac.Name,
+		"token": token,
+	})
 }
 
 func signin(ctx *gin.Context) gin.HandlerFunc {

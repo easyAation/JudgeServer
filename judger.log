@@ -14,3 +14,33 @@ FATAL [2019-04-08 07:29:07] [/home/lianxm/go/src/online_judge/Judger/src/child.c
 FATAL [2019-04-08 07:30:27] [/home/lianxm/go/src/online_judge/Judger/src/child.c:101]Error: System errno: Is a directory; Internal errno: DUP2_FAILED
 FATAL [2019-04-08 07:30:50] [/home/lianxm/go/src/online_judge/Judger/src/child.c:101]Error: System errno: Is a directory; Internal errno: DUP2_FAILED
 FATAL [2019-04-08 07:31:00] [/home/lianxm/go/src/online_judge/Judger/src/child.c:101]Error: System errno: Is a directory; Internal errno: DUP2_FAILED
+FATAL [2019-06-11 23:08:10] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:08:10] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:08:10] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:10:44] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:10:44] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:10:44] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:25:22] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:25:22] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:25:22] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:26:59] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:26:59] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:26:59] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:29:43] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:29:43] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:29:43] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:29:48] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:29:48] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:29:48] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:55:53] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:55:53] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:55:53] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:56:49] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:56:49] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:56:49] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:57:19] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:57:19] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:57:19] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:59:57] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:59:57] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG
+FATAL [2019-06-11 23:59:57] [/home/lianxm/go/src/online_judge/Judger/src/runner.c:49]Error: INVALID_CONFIG

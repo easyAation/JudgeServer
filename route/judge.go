@@ -91,11 +91,73 @@ func JudgeRouteModule() router.ModuleRoute {
 			http.MethodGet,
 			reply.Wrap(getContest),
 		),
+		router.NewRouter(
+			"/v1/contest/submit",
+			http.MethodPost,
+			reply.Wrap(judgeContestSubmit),
+			middleware.VerifyLogin,
+		),
 	}
 
 	return router.ModuleRoute{
 		Routers: routes,
 	}
+}
+
+func judgeContestSubmit(ctx *gin.Context) gin.HandlerFunc {
+	var (
+		request = struct {
+			sandbox.Request
+			CID int64 `json:"cid"`
+		}{}
+	)
+	err := ctx.ShouldBindJSON(&request)
+	if err != nil {
+		return reply.ErrorWithMessage(err, "invalid param")
+	}
+	fmt.Printf("%+v\n", request)
+	sandBox, err := sandbox.NewSandBox(request.Request)
+	if err != nil {
+		return reply.Err(err)
+	}
+	res, err := sandBox.Run()
+	if err != nil {
+		return reply.Err(err)
+	}
+
+	sqlExec, err := db.GetSqlExec(ctx, "problem")
+	if err != nil {
+		return reply.Err(err)
+	}
+	//log.Println(middleware.GetCurrentID(ctx))
+	_, err = model.AddContestSubmit(sqlExec, model.ContestSubmit{
+		CID: request.CID,
+		Submit: model.Submit{
+			PID:      request.ProblemID,
+			UID:      middleware.GetCurrentID(ctx),
+			SubmitID: request.ID,
+			Code:     request.Code,
+			Language: request.Language,
+			Result:   res.Status,
+			RunTime:  res.Time,
+			Memory:   res.Memory,
+		},
+	})
+	if err != nil {
+		return reply.Err(err)
+	}
+
+	return reply.Success(200, map[string]interface{}{
+		"data": struct {
+			Result string `json:"result"`
+			Time   int64  `json:"time"`
+			Memory int64  `json:"memory"`
+		}{
+			res.Status,
+			res.Time,
+			res.Memory,
+		},
+	})
 }
 
 func judgeProblem(ctx *gin.Context) gin.HandlerFunc {
@@ -436,7 +498,6 @@ func getContest(ctx *gin.Context) gin.HandlerFunc {
 		"total":   len(list),
 	})
 }
-
 func FileNameNotExt(name string) string {
 	for i, c := range name {
 		if c == '.' {

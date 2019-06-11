@@ -1,12 +1,12 @@
 package middleware
 
 import (
+	"fmt"
 	"log"
-	
+
 	"github.com/easyAation/scaffold/reply"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
-	
 
 	"online_judge/JudgeServer/common"
 	"online_judge/JudgeServer/utils"
@@ -31,6 +31,7 @@ func VerifyLogin(fn gin.HandlerFunc) gin.HandlerFunc {
 			reply.Err(errors.Errorf("invalid token. please login again."))(ctx)
 			return
 		}
+		fmt.Println("------>>>>")
 		ctx.Set(currentUser, userID)
 		fn(ctx)
 	}
