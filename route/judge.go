@@ -97,10 +97,107 @@ func JudgeRouteModule() router.ModuleRoute {
 			reply.Wrap(judgeContestSubmit),
 			middleware.VerifyLogin,
 		),
+		router.NewRouter(
+			"/v1/contest/submission",
+			http.MethodGet,
+			reply.Wrap(contestStatus),
+		),
+		router.NewRouter("/v1/contest/rank",
+			http.MethodGet,
+			reply.Wrap(contestRank)),
 	}
 
 	return router.ModuleRoute{
 		Routers: routes,
+	}
+}
+func contestRank(ctx *gin.Context) gin.HandlerFunc {
+	type (
+		problem = struct {
+			PID      int       `json:"pid"`
+			Failed   int       `json:"failed"`
+			CreateAT time.Time `json:"create_at"`
+		}
+		user = struct {
+			ID       string    `json:"id"`
+			Name     string    `json:"name"`
+			Problems []problem `json:"problems"`
+		}
+	)
+	cid := ctx.Query("cid")
+	if cid == "" {
+		return reply.Success(200, nil)
+	}
+	sqlExec, err := db.GetSqlExec(ctx, "problem")
+	if err != nil {
+		return reply.Err(err)
+	}
+	allSubmit, err := model.GetContestSubmit(sqlExec, map[string]interface{}{
+		"cid": cid,
+	})
+	if err != nil {
+		return reply.Err(err)
+	}
+	allAccount, err := model.GetAccounts(ctx, nil)
+	if err != nil {
+		return reply.Err(err)
+	}
+	acs := make(map[string]string)
+	for _, ac := range allAccount {
+		acs[ac.ID] = ac.Name
+	}
+	Rank := make(map[string]*user)
+	for _, sb := range allSubmit {
+		if _, ok := Rank[sb.UID]; !ok {
+			Rank[sb.UID] = &user{
+				sb.UID,
+				acs[sb.UID],
+				make([]problem, 0),
+			}
+		}
+	}
+	var found bool
+	var pro *problem
+	for _, sb := range allSubmit {
+		pro = nil
+		found = false
+		if Rank[sb.UID].ID == sb.UID {
+			found = true
+		}
+		if !found {
+			continue
+		}
+		for i := 0; i < len(Rank[sb.UID].Problems); i++ {
+			if Rank[sb.UID].Problems[i].PID == sb.PID {
+				pro = &Rank[sb.UID].Problems[i]
+			}
+		}
+		if pro == nil {
+			failed := 0
+			if sb.Result != common.Accept {
+				failed = -1
+			}
+			Rank[sb.UID].Problems = append(Rank[sb.UID].Problems, problem{
+				sb.PID,
+				failed,
+				sb.CreatedAT,
+			})
+
+		} else {
+			if pro.CreateAT.After(sb.CreatedAT) {
+				pro.CreateAT = sb.CreatedAT
+			}
+			if pro.Failed < 0 {
+				if sb.Result != common.Accept {
+					pro.Failed--
+				} else {
+					pro.Failed = -pro.Failed
+				}
+			}
+		}
+	}
+	return func(context *gin.Context) {
+		context.JSON(200, Rank)
 	}
 }
 
@@ -129,7 +226,7 @@ func judgeContestSubmit(ctx *gin.Context) gin.HandlerFunc {
 	if err != nil {
 		return reply.Err(err)
 	}
-	//log.Println(middleware.GetCurrentID(ctx))
+	// log.Println(middleware.GetCurrentID(ctx))
 	_, err = model.AddContestSubmit(sqlExec, model.ContestSubmit{
 		CID: request.CID,
 		Submit: model.Submit{
@@ -287,7 +384,7 @@ func getProblem(ctx *gin.Context) gin.HandlerFunc {
 }
 
 func getProblems(ctx *gin.Context) gin.HandlerFunc {
-	sqlExec, err := db.GetSqlExec(ctx.Request.Context(), model.ProblemTable)
+	sqlExec, err := db.GetSqlExec(ctx.Request.Context(), "problem")
 	if err != nil {
 		return reply.Err(err)
 	}
@@ -300,6 +397,26 @@ func getProblems(ctx *gin.Context) gin.HandlerFunc {
 	})
 }
 
+func contestStatus(ctx *gin.Context) gin.HandlerFunc {
+	cid := ctx.Query("cid")
+	sqlExec, err := db.GetSqlExec(ctx, "problem")
+	if err != nil {
+		return reply.Err(err)
+	}
+	var filter map[string]interface{}
+	if cid != "" {
+		filter = make(map[string]interface{})
+		filter["cid"] = cid
+	}
+	submits, err := model.GetContestSubmit(sqlExec, filter)
+	if err != nil {
+		return reply.Err(err)
+	}
+	return reply.Success(200, map[string]interface{}{
+		"list":  submits,
+		"total": len(submits),
+	})
+}
 func addProblemData(ctx *gin.Context) gin.HandlerFunc {
 	pid := ctx.Query("pid")
 	dst := common.Config.SandBox.ProblemDir + string(os.PathSeparator) + pid
