@@ -104,13 +104,19 @@ func JudgeRouteModule() router.ModuleRoute {
 		),
 		router.NewRouter("/v1/contest/rank",
 			http.MethodGet,
-			reply.Wrap(contestRank)),
+			reply.Wrap(contestRank),
+		),
+		router.NewRouter("/v1/contest/list",
+			http.MethodGet,
+			reply.Wrap(contestList),
+		),
 	}
 
 	return router.ModuleRoute{
 		Routers: routes,
 	}
 }
+
 func contestRank(ctx *gin.Context) gin.HandlerFunc {
 	type (
 		problem = struct {
@@ -394,6 +400,20 @@ func getProblems(ctx *gin.Context) gin.HandlerFunc {
 	}
 	return reply.Success(200, map[string]interface{}{
 		"list": problemList,
+	})
+}
+
+func contestList(ctx *gin.Context) gin.HandlerFunc {
+	sqlExec, err := db.GetSqlExec(ctx.Request.Context(), "problem")
+	if err != nil {
+		return reply.Err(err)
+	}
+	contestList, err := model.GetContest(sqlExec, nil)
+	if err != nil {
+		return reply.Err(err)
+	}
+	return reply.Success(200, map[string]interface{}{
+		"list": contestList,
 	})
 }
 
