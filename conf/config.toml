@@ -2,14 +2,14 @@ listen = 2010
 allowCORS = false
 
 [mysql]
-connStr = "root:123456@tcp(47.93.206.195:3306)/problem?charset=utf8mb4&parseTime=True&loc=Asia%2FShanghai&time_zone=%27%2B8%3A00%27"
+connStr = "root:123456@tcp(xxxxx:3306)/problem?charset=utf8mb4&parseTime=True&loc=Asia%2FShanghai&time_zone=%27%2B8%3A00%27"
 maxIdleConns = 200
 maxOpenConns = 200
 
 [redis]
-addr = "47.93.206.195"
-password = "zzuli"
-db = 2
+addr = "xxxxxx"
+password = "xxxxx"
+db = 1
 maxIdle = 10
 maxActive = 10
 dialTimeout = "3s"
@@ -28,3 +28,8 @@ exe = "libjudger.so"
 problemdir = "/home/lianxm/go/src/online_judge/JudgeServer/.online_judge/problem_data"
 outputDir = ".online_judge/output"
 
+[token]
+expiration = "30m"
+
+[static]
+imagePath = "/home/lianxm/go/src/online_judge/JudgeServer/static"

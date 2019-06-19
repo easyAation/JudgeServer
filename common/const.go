@@ -6,6 +6,8 @@ const (
 	GoLanguage  = "Golang"
 
 	Accept            = "Accepted"
+	CompileError      = "Compile Error"
+	Running           = "Running"
 	WrongAnswer       = "Wrong Answer"
 	TimeLimit         = "Time Limit"
 	MemoryLimit       = "Memory Limit"
@@ -13,4 +15,7 @@ const (
 	SysteamError      = "System Error"
 	PresentationError = "Presentation Error"
 	InternalError     = "internal Error"
+
+	// token header
+	AuthHeader = "Authorization"
 )

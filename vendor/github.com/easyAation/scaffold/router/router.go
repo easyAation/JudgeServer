@@ -25,7 +25,7 @@ func NewRouter(relativePath, method string, handle gin.HandlerFunc, middlewares 
 	}
 }
 
-func BuildHandler(prefixMiddleWares []MiddleWare, moduleRoutes ...ModuleRoute) *gin.Engine {
+func BuildHandler(optionsHandler gin.HandlerFunc, prefixMiddleWares []MiddleWare, moduleRoutes ...ModuleRoute) *gin.Engine {
 	router := gin.Default()
 	for _, module := range moduleRoutes {
 		for _, route := range module.Routers {
@@ -38,6 +38,9 @@ func BuildHandler(prefixMiddleWares []MiddleWare, moduleRoutes ...ModuleRoute) *
 			for _, middle := range middlewares {
 				handle = middle(handle)
 			}
+			if optionsHandler != nil {
+			        router.Handle("OPTIONS", route.RelativePath, optionsHandler)
+                        }
 			router.Handle(route.Method, route.RelativePath, handle)
 		}
 	}

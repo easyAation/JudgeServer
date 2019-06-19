@@ -50,7 +50,7 @@ func AddProblemDatas(sqlExec *db.SqlExec, proDatas []ProblemData) (int64, error)
 func GetProblemData(sqlExec *db.SqlExec, filter map[string]interface{}) ([]ProblemData, error) {
 	placeHolder := make([]string, 0, len(filter))
 	for k, v := range filter {
-		placeHolder = append(placeHolder, fmt.Sprintf("%s=%v ", k, v))
+		placeHolder = append(placeHolder, fmt.Sprintf("%s='%v'", k, v))
 	}
 	sql := "select * from problem_data where " + strings.Join(placeHolder, "and")
 	fmt.Println(sql)

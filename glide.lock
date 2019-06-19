@@ -1,10 +1,10 @@
 hash: fee90a261c50dc6d72a2df42438ae8eff8096986e0e11835ed74f0d8114b0b42
-updated: 2019-05-12T00:19:33.015708443+08:00
+updated: 2019-05-12T20:57:10.490324374+08:00
 imports:
 - name: github.com/BurntSushi/toml
   version: 3012a1dbe2e4bd1391d42b32f0577cb7bbc7f005
 - name: github.com/easyAation/scaffold
-  version: c672e35087c6796a178f8a94f063d78c64f9563a
+  version: ae5cbfb9fdd7c7c5ac2107d0a1a72fd02490cbf8
   subpackages:
   - db
   - reply
@@ -23,6 +23,10 @@ imports:
   version: e91709a02e0e8ff8b86b7aa913fdc9ae9498e825
   subpackages:
   - proto
+- name: github.com/gomodule/redigo
+  version: 39e2c31b7ca38b521ceb836620a269e62c895dc9
+  subpackages:
+  - redis
 - name: github.com/jmoiron/sqlx
   version: d161d7a76b5661016ad0b085869f77fd410f3e6a
   subpackages:
